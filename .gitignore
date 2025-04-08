@@ -1,0 +1,50 @@
+# Node modules
+node_modules/
+
+# Build directories
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+
+# Testing output
+coverage/
+jest-html-reporters-*
+
+# Dependency lock files (optional - use based on team preference)
+package-lock.json
+yarn.lock
+
+# MongoDB dump files
+dump/
+
+# Firebase or cloud config files (if used)
+.firebase/
+.firebaserc
+
+# Local config or cache
+.cache/
+*.local
+
+# Socket.io temp data (if applicable)
+*.sock

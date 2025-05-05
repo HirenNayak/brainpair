@@ -1,0 +1,18 @@
+# React + Firebase Git Ignore
+node_modules/
+build/
+dist/
+
+.env
+.env.local
+firebase-debug.log
+.firebaserc
+.firebase/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+*.log
+.cache/

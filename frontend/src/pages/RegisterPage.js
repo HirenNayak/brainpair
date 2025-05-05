@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
-import { auth } from "../firebase/firebase-config";
+import { doc, setDoc } from "firebase/firestore"; // ✅ Firestore import
+import { auth, db } from "../firebase/firebase-config"; // ✅ Firestore db
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -30,8 +30,8 @@ const RegisterPage = () => {
       );
       const user = userCredential.user;
 
-      const db = getDatabase();
-      await set(ref(db, "users/" + user.uid), {
+      // ✅ Save user details to Firestore
+      await setDoc(doc(db, "users", user.uid), {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email

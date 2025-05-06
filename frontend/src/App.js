@@ -7,6 +7,7 @@ import ProfileSetupPage from './pages/ProfileSetupPage';
 import ImageUploadPage from './pages/ImageUploadPage'; 
 import DashboardPage from "./pages/DashboardPage";
 import MatchesPage from "./pages/MatchesPage";
+import ConnectionsPage from "./pages/ConnectionsPage";
 
 import Pomodoro from './pages/PomodoroTimerApp'; 
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/pomodoro" element={<Pomodoro />} /> 
         <Route path="/matches" element={<MatchesPage />} /> 
+        <Route path="/connections" element={<ConnectionsPage />} />
       </Routes>
     </Router>
   );

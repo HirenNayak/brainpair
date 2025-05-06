@@ -40,39 +40,52 @@ const UserProfileSettings = () => {
     });
 
 //fetching the current user's profile data from firebase
-    const MyComponent = () => {
-        const [form, setForm] = useState(null);
-        const navigate = useNavigate();
-
-        useEffect(() => {
-            const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    try {
-                        const docRef = doc(db, "users", user.uid);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            setForm(docSnap.data());
-                        } else {
-                            console.log("No profile data found for this user.");
-                        }
-                    } catch (err) {
-                        console.log("Error fetching user profile:", err);
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        setForm({...form, ...docSnap.data()});
                     }
-                } else {
-                    alert("No user logged in.");
-                    navigate("/login");
+                } catch (err) {
+                    console.log("Error fetching user profile:", err);
+                } finally {
+                    setLoading(false);
                 }
-            });
+            } else {
+                alert("No user logged in.");
+                navigate("/login");
+            }
+        });
 
-            return () => unsubscribe(); // Cleanup listener on unmount.
-        }, [navigate]);
+        return () => unsubscribe();
+    }, []);
 
-        return (
-            <div>
-                {/* Render form data or a loading state here */}
-                {form ? <pre>{JSON.stringify(form, null, 2)}</pre> : <p>Loading...</p>}
-            </div>
-        );
+    const handleChange = (e) => {
+        setForm({...form, [e.target.name]: e.target.value});
     };
 
-    export default MyComponent;
+    const handleSubmit = async () => {
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("No user logged in.");
+                return;
+            }
+
+
+            await setDoc(doc(db, "users", user.uid), form, {merge: true});
+
+            alert("Profile updated!");
+            navigate("/");
+        } catch (err) {
+            alert("Error updating profile: " + err.message);
+        }
+    };
+
+    if (loading) return <p className="text-center mt-10">Loading...</p>;
+
+
+}

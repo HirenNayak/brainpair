@@ -1,5 +1,5 @@
 import React, { useEffect ,useState } from "react";
-import { collection, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase-config";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
@@ -11,7 +11,7 @@ function ChatPage() {
 
     const currentUser = auth.currentUser;
     const [matchedUsers, setMatchedUsers]  = useState([]);
-    const [selectedUSer, setSelectedUSer] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
 
 
     useEffect(() => {
@@ -69,7 +69,7 @@ function ChatPage() {
 
 
        {/* RIGHT: CHAT WINDOW */}
-       
+
         <div className="w-3/5 p-4">
           {selectedUser ? (
             <ChatWindow selectedUser={selectedUser} />
@@ -80,7 +80,7 @@ function ChatPage() {
           )}
         </div>
       </div>
-      <footer />
+      <Footer />
      </>
     );
 }

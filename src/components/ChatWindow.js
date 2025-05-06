@@ -29,7 +29,7 @@ function ChatWindow ({ selectedUser}){
     const sendMessage = async() => {
         if(text.trim() == "") return;
 
-        await addDoc(collection(db, "chat", chatId, "messages"), {
+        await addDoc(collection(db, "chats", chatId, "messages"), {
             senderId: currentUser.uid, text, timestamp: serverTimestamp(),
         });
 

@@ -5,6 +5,7 @@ import {
 import {auth, db} from "../firebase/firebase-config";
 
 function ChatWindow ({ selectedUser}){
+
     const currentUser = auth.currentUser;
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
@@ -35,6 +36,7 @@ function ChatWindow ({ selectedUser}){
 
         setText("");
     };
+    
     return(
 
         <div className="flex flex-col h-full">

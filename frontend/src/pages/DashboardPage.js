@@ -73,7 +73,7 @@ const DashboardPage = () => {
         <div className="flex-1 p-8">
           {activeTab === "matches" && (
             <>
-              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Matches</h1>
+              <h1 className="text-2xl font-bold text-amber-950 mb-4">Matches</h1>
               <MatchesPage />
             </>
           )}

@@ -8,7 +8,7 @@ import ImageUploadPage from './pages/ImageUploadPage';
 import DashboardPage from "./pages/DashboardPage";
 import MatchesPage from "./pages/MatchesPage";
 import ConnectionsPage from "./pages/ConnectionsPage";
-
+import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp'; 
 
 function App() {
@@ -24,6 +24,7 @@ function App() {
         <Route path="/pomodoro" element={<Pomodoro />} /> 
         <Route path="/matches" element={<MatchesPage />} /> 
         <Route path="/connections" element={<ConnectionsPage />} />
+        <Route path="/chat/:userId" element={<ChatPage />} />
       </Routes>
     </Router>
   );

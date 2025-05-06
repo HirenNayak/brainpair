@@ -16,22 +16,30 @@ function LoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      alert("Login successful!");
-      navigate("/setup");
-
+  
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-
+  
       if (docSnap.exists()) {
-        console.log("User data from Firestore:", docSnap.data());
+        const userData = docSnap.data();
+  
+        if (!userData.firstName || !userData.university) {
+          navigate("/setup"); // Incomplete profile
+        } else if (!userData.images || userData.images.length < 2) {
+          navigate("/upload"); // No images yet
+        } else {
+          navigate("/dashboard"); // All good
+        }
       } else {
-        console.log("No profile data found for this user.");
+        navigate("/setup"); // No doc at all
       }
+  
+      alert("Login successful!");
     } catch (err) {
       alert("Login failed: " + err.message);
     }
   };
+  
 
   return (
     <>

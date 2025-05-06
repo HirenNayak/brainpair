@@ -48,13 +48,25 @@ function ChatPage() {
                     <Button onClick={() => console.log ('Logout')} >Logout</Button>
                 </div>
             </div>
-            {/*Matched Users*/}
-            <div className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
-                <h3 className="text-lg font-bold mb-4 text-gray-700">Matched Users</h3>
-                
-                {/* PlaceHolder for now */}
-                <p className="text-gray-500">No matched users loaded yet...</p>
+            
+            {/* MIDDLE: USER LIST */}
+        <div className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
+          <h3 className="text-lg font-bold mb-4 text-gray-700">Matched Users</h3>
+          {matchedUsers.map((user) => (
+            <div
+
+              key={user.id}
+              className={`cursor-pointer p-3 mb-2 rounded-lg shadow-md bg-white hover:bg-indigo-100 ${
+                selectedUser?.id === user.id ? "border border-indigo-400" : ""
+              }`}
+              onClick={() => setSelectedUser(user)}
+            >
+              <p className="font-medium text-gray-800">{user.firstName} {user.lastName}</p>
+              <p className="text-sm text-gray-600">{user.course} @ {user.university}</p>
             </div>
+          ))}
+        </div>
+
             {/* Chat window placehoder */}
             <div className="w-3/5 p-4">
                 <div className="text-center text-gray-400 mt-40">

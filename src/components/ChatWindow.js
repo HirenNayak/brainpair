@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
     collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "firebase/firestore";
-import { async } from "@firebase/util";
+import {auth, db} from "../firebase/firebase-config";
 
 function ChatWindow ({ selectedUser}){
     const currentUser = auth.currentUser;
@@ -10,15 +10,17 @@ function ChatWindow ({ selectedUser}){
     const [text, setText] = useState("");
     const chatId = [currentUser.uid, selectedUser.id].sort().join("_");
     const bottomRef = useRef(null);
+
+
     useEffect(() => {
         const  q = query(
-            collection(db, "chat", chatId, "messages"), orderBy("timestamp")
+            collection(db, "chats", chatId, "messages"), orderBy("timestamp")
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             setMessages(snapshot.docs.map((doc) => doc.data()));
         });
         return () => unsubscribe();
-    }), [chatId];
+    },[chatId]);
     
     useEffect (() => {
         bottomRef.current?.scrollIntoView({behavior: "smooth"});
@@ -28,8 +30,9 @@ function ChatWindow ({ selectedUser}){
         if(text.trim() == "") return;
 
         await addDoc(collection(db, "chat", chatId, "messages"), {
-            senderId: currentUser.uid, text, timestamp: serverTimestamp()
+            senderId: currentUser.uid, text, timestamp: serverTimestamp(),
         });
+
         setText("");
     };
     return(
@@ -38,6 +41,8 @@ function ChatWindow ({ selectedUser}){
             <h3 className="text-lg font-bold mb-2 border-b pb-2">
                 Chat with {selectedUser?.firstName || selectedUser.lastName}
             </h3>
+
+            {/*messages*/}
             <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
                 {messages.map((msg, i) => {
                     const messageTime = msg.timestamp?.toDate?.().toLocaleTimeString([], {

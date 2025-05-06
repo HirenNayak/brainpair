@@ -14,10 +14,17 @@ const ImageUploadPage = () => {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
-    const total = [...images, ...selected].slice(0, 4); // Limit to 4 total
+  
+    // Check if total exceeds 4
+    if (images.length + selected.length > 4) {
+      alert("You can upload a maximum of 4 images only.");
+      return;
+    }
+  
+    const total = [...images, ...selected];
     setImages(total);
   };
-
+  
   const removeImage = (index) => {
     const newImages = [...images];
     newImages.splice(index, 1);

@@ -28,7 +28,7 @@ function ChatWindow ({ selectedUser}){
     }, [messages]);
    
     const sendMessage = async() => {
-        if(text.trim() == "") return;
+        if(text.trim() === "") return;
 
         await addDoc(collection(db, "chats", chatId, "messages"), {
             senderId: currentUser.uid, text, timestamp: serverTimestamp(),
@@ -36,7 +36,7 @@ function ChatWindow ({ selectedUser}){
 
         setText("");
     };
-    
+
     return(
 
         <div className="flex flex-col h-full">

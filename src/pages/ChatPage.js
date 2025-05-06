@@ -7,29 +7,40 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import ChatWindow from "../components/ChatWindow";
 
+
 function ChatPage() {
 
     const currentUser = auth.currentUser;
+
     const [matchedUsers, setMatchedUsers]  = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
 
+    //Only matched users 
     useEffect(() => {
-
+        if (!currentUser) return;
+      
         const fetchMatchedUsers = async () => {
-
+          try {
             const snapshot = await getDocs(collection(db, "users"));
             const users = [];
             snapshot.forEach((doc) => {
-              if (doc.id !== currentUser?.uid) {
-                users.push({ id: doc.id, ...doc.data() });
+              const data = doc.data();
+              const matchedWith = data.matches || [];
+              if (doc.id !== currentUser.uid && matchedWith.includes(currentUser.uid)) {
+                users.push({ id: doc.id, ...data });
               }
             });
             setMatchedUsers(users);
-          };
+          } catch (err) {
+            console.error("Error fetching matched users: ", err);
+          }
+        };
       
-          fetchMatchedUsers();
-        }, []);
+        fetchMatchedUsers();
+      }, [currentUser]);
+
+            
     return (
         <>
         <Header />

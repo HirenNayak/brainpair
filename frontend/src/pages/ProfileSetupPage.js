@@ -4,6 +4,7 @@ import { db, auth } from "../firebase/firebase-config";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
+import { useNavigate } from "react-router-dom"; // 
 
 const universities = [
   "University of Auckland", "Auckland University of Technology (AUT)",
@@ -22,6 +23,8 @@ const cities = [
 ];
 
 const ProfileSetupPage = () => {
+  const navigate = useNavigate(); // 
+
   const [form, setForm] = useState({
     university: "",
     course: "",
@@ -53,6 +56,7 @@ const ProfileSetupPage = () => {
       }, { merge: true });
 
       alert("Profile setup complete!");
+      navigate("/upload"); 
     } catch (err) {
       alert("Error: " + err.message);
     }

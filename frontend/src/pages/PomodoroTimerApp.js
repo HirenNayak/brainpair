@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
-// Constants
 const POMODORO_TIME = 25 * 60;
 const SHORT_BREAK_TIME = 5 * 60;
 const LONG_BREAK_TIME = 20 * 60;
 
-// Timer hook
 function useTimer(initialTime, onTick) {
     const [time, setTime] = useState(initialTime);
     const [isRunning, setIsRunning] = useState(false);
@@ -38,7 +38,6 @@ function useTimer(initialTime, onTick) {
     return { time, isRunning, start, pause, reset };
 }
 
-// Timer display component
 const TimerDisplay = ({ seconds, mode }) => {
     const minutes = Math.floor(seconds / 60);
     const secondsLeft = String(seconds % 60).padStart(2, "0");
@@ -50,7 +49,6 @@ const TimerDisplay = ({ seconds, mode }) => {
     );
 };
 
-// Control buttons
 const TimeControls = ({ isRunning, onStart, onStop, onReset, isResetDisabled }) => (
     <div className="flex justify-center gap-4 mt-4">
         {isRunning ? (
@@ -65,7 +63,9 @@ const TimeControls = ({ isRunning, onStart, onStop, onReset, isResetDisabled }) 
         <button
             onClick={onReset}
             disabled={isResetDisabled}
-            className={`px-4 py-2 rounded-lg shadow-md ${isResetDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+            className={`px-4 py-2 rounded-lg shadow-md ${
+                isResetDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
         >
             Reset
         </button>
@@ -73,7 +73,7 @@ const TimeControls = ({ isRunning, onStart, onStop, onReset, isResetDisabled }) 
 );
 
 const PomodoroTimerApp = () => {
-    const [mode, setMode] = useState('pomodoro');
+    const [mode, setMode] = useState("pomodoro");
     const [settings] = useState({
         pomodoro: POMODORO_TIME / 60,
         shortBreak: SHORT_BREAK_TIME / 60,
@@ -118,9 +118,9 @@ const PomodoroTimerApp = () => {
 
     const handleReset = () => {
         reset(
-            mode === 'pomodoro'
+            mode === "pomodoro"
                 ? settings.pomodoro * 60
-                : mode === 'shortBreak'
+                : mode === "shortBreak"
                     ? settings.shortBreak * 60
                     : settings.longBreak * 60
         );
@@ -132,13 +132,13 @@ const PomodoroTimerApp = () => {
         pause();
         setIsResetDisabled(true);
         switch (newMode) {
-            case 'pomodoro':
+            case "pomodoro":
                 reset(settings.pomodoro * 60);
                 break;
-            case 'shortBreak':
+            case "shortBreak":
                 reset(settings.shortBreak * 60);
                 break;
-            case 'longBreak':
+            case "longBreak":
                 reset(settings.longBreak * 60);
                 break;
             default:
@@ -147,33 +147,40 @@ const PomodoroTimerApp = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg text-center mt-10">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800">Pomodoro Timer</h1>
-
-            <div className="flex justify-center gap-2 mb-6">
-                {["pomodoro", "shortBreak", "longBreak"].map((label) => (
-                    <button
-                        key={label}
-                        onClick={() => handleModeChange(label)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium ${
-                            mode === label
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                        }`}
-                    >
-                        {label === "pomodoro" ? "Pomodoro" : label === "shortBreak" ? "Short Break" : "Long Break"}
-                    </button>
-                ))}
-            </div>
-
-            <TimerDisplay seconds={time} mode={mode} />
-            <TimeControls
-                isRunning={isRunning}
-                onStart={handleStart}
-                onStop={handleStop}
-                onReset={handleReset}
-                isResetDisabled={isResetDisabled}
-            />
+        <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">
+                <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg text-center mt-10">
+                    <div className="flex justify-center gap-2 mb-4">
+                        {["pomodoro", "shortBreak", "longBreak"].map((label) => (
+                            <button
+                                key={label}
+                                onClick={() => handleModeChange(label)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                                    mode === label
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                }`}
+                            >
+                                {label === "pomodoro"
+                                    ? "Pomodoro"
+                                    : label === "shortBreak"
+                                        ? "Short Break"
+                                        : "Long Break"}
+                            </button>
+                        ))}
+                    </div>
+                    <TimerDisplay seconds={time} mode={mode} />
+                    <TimeControls
+                        isRunning={isRunning}
+                        onStart={handleStart}
+                        onStop={handleStop}
+                        onReset={handleReset}
+                        isResetDisabled={isResetDisabled}
+                    />
+                </div>
+            </main>
+            <Footer />
         </div>
     );
 };

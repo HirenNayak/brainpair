@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Pomodoro from "./PomodoroTimerApp"; 
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -38,7 +39,18 @@ const DashboardPage = () => {
                 Messages
               </button>
             </li>
-            {/* Add more sections here if needed */}
+            <li>
+              <button
+                className={`w-full text-left px-3 py-2 rounded-lg ${
+                  activeTab === "pomodoro"
+                    ? "bg-indigo-100 text-indigo-700 font-semibold"
+                    : "hover:bg-indigo-50"
+                }`}
+                onClick={() => setActiveTab("pomodoro")}
+              >
+                Pomodoro
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -47,7 +59,6 @@ const DashboardPage = () => {
           {activeTab === "matches" && (
             <div>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Your Matches</h1>
-              {/* Matches content will go here */}
               <p className="text-gray-600">Coming soon: Swipe and match system...</p>
             </div>
           )}
@@ -55,8 +66,14 @@ const DashboardPage = () => {
           {activeTab === "messages" && (
             <div>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Messages</h1>
-              {/* Messages content will go here */}
               <p className="text-gray-600">Chat functionality under development.</p>
+            </div>
+          )}
+
+          {activeTab === "pomodoro" && (
+            <div>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Pomodoro Timer</h1>
+              <Pomodoro /> 
             </div>
           )}
         </div>

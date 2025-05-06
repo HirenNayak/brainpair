@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Pomodoro from "./PomodoroTimerApp"; 
+import Pomodoro from "./PomodoroTimerApp";
 import MatchesPage from "./MatchesPage";
 import ConnectionsPage from "./ConnectionsPage";
+import ChatPage from "./ChatPage";
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -32,13 +33,13 @@ const DashboardPage = () => {
             <li>
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg ${
-                  activeTab === "messages"
+                  activeTab === "chat"
                     ? "bg-indigo-100 text-indigo-700 font-semibold"
                     : "hover:bg-indigo-50"
                 }`}
-                onClick={() => setActiveTab("messages")}
+                onClick={() => setActiveTab("chat")}
               >
-                Messages
+                Chat
               </button>
             </li>
             <li>
@@ -70,24 +71,32 @@ const DashboardPage = () => {
 
         {/* Main View */}
         <div className="flex-1 p-8">
-          {activeTab === "matches" && <MatchesPage />}
-          {activeTab === "messages" && (
-            <div>
-              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Messages</h1>
-              <p className="text-gray-600">Chat functionality under development.</p>
-            </div>
+          {activeTab === "matches" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Matches</h1>
+              <MatchesPage />
+            </>
           )}
+
+          {activeTab === "chat" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Chat</h1>
+              <ChatPage />
+            </>
+          )}
+
           {activeTab === "pomodoro" && (
-            <div>
+            <>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Pomodoro Timer</h1>
               <Pomodoro />
-            </div>
+            </>
           )}
+
           {activeTab === "connections" && (
-            <div>
+            <>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Your Connections</h1>
               <ConnectionsPage />
-            </div>
+            </>
           )}
         </div>
       </div>

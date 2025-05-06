@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect ,useState } from "react";
+import { collection, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase-config";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -6,6 +8,28 @@ import Button from "../components/Button";
 import ChatWindow from "../components/ChatWindow";
 
 function ChatPage() {
+
+    const currentUser = auth.currentUser;
+    const [matchedUsers, setMatchedUsers]  = useState([]);
+    const [selectedUSer, setSelectedUSer] = useState(null);
+
+
+    useEffect(() => {
+
+        const fetchMatchedUsers = async () => {
+
+            const snapshot = await getDocs(collection(db, "users"));
+            const users = [];
+            snapshot.forEach((doc) => {
+              if (doc.id !== currentUser?.uid) {
+                users.push({ id: doc.id, ...doc.data() });
+              }
+            });
+            setMatchedUsers(users);
+          };
+      
+          fetchMatchedUsers();
+        }, []);
     return (
         <>
         <Header />
@@ -27,6 +51,7 @@ function ChatPage() {
             {/*Matched Users*/}
             <div className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
                 <h3 className="text-lg font-bold mb-4 text-gray-700">Matched Users</h3>
+                
                 {/* PlaceHolder for now */}
                 <p className="text-gray-500">No matched users loaded yet...</p>
             </div>

@@ -23,15 +23,18 @@ function ChatPage() {
                     <Button onClick={() => console.log ('Logout')} >Logout</Button>
                 </div>
             </div>
-            {/*user list placeholder*/}
+            {/*Matched Users*/}
             <div className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
                 <h3 className="text-lg font-bold mb-4 text-gray-700">Matched Users</h3>
-                <p className="text-gray-600">[User list goes here]</p>
+                {/* PlaceHolder for now */}
+                <p className="text-gray-500">No matched users loaded yet...</p>
             </div>
+            {/* Chat window placehoder */}
             <div className="w-3/5 p-4">
                 <div className="text-center text-gray-400 mt-40">
                     <p>Select a user from the left to start chatting.</p>
                 </div>
+
             </div>
         </div>
         </>

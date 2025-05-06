@@ -1,70 +1,90 @@
 import React, { useEffect, useState } from "react";
-import { auth, db } from "../firebase/firebase-config";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { db, auth } from "../firebase/firebase-config";
+import { collection, getDocs, doc, getDoc, deleteDoc } from "firebase/firestore";
+import Slider from "react-slick";
+import Button from "../components/Button";
+import { useNavigate } from "react-router-dom";
 
 const ConnectionsPage = () => {
-  const [matchedUsers, setMatchedUsers] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchConnections = async () => {
       const currentUser = auth.currentUser;
       if (!currentUser) return;
 
-      const matchesRef = collection(db, "matches");
-      const snapshot = await getDocs(matchesRef);
+      const matchesSnapshot = await getDocs(collection(db, "matches"));
+      const connectedUserIds = [];
 
-      const userMatches = [];
+      matchesSnapshot.forEach((matchDoc) => {
+        const match = matchDoc.data();
+        if (match.users.includes(currentUser.uid)) {
+          const otherUserId = match.users.find((id) => id !== currentUser.uid);
+          connectedUserIds.push({ uid: otherUserId, matchId: matchDoc.id });
+        }
+      });
 
-      for (const docSnap of snapshot.docs) {
-        const matchData = docSnap.data();
-        if (matchData.users.includes(currentUser.uid)) {
-          const otherUserId = matchData.users.find(uid => uid !== currentUser.uid);
-          const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
-          if (otherUserDoc.exists()) {
-            userMatches.push({ uid: otherUserId, ...otherUserDoc.data() });
-          }
+      const userData = [];
+      for (const entry of connectedUserIds) {
+        const userDoc = await getDoc(doc(db, "users", entry.uid));
+        if (userDoc.exists()) {
+          userData.push({
+            uid: entry.uid,
+            matchId: entry.matchId,
+            ...userDoc.data(),
+          });
         }
       }
 
-      setMatchedUsers(userMatches);
+      setConnections(userData);
     };
 
     fetchConnections();
   }, []);
 
-  return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-indigo-50 p-6">
-        <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-          Your Connections
-        </h2>
+  const handleUnmatch = async (matchId) => {
+    await deleteDoc(doc(db, "matches", matchId));
+    setConnections((prev) => prev.filter((conn) => conn.matchId !== matchId));
+  };
 
-        {matchedUsers.length === 0 ? (
-          <p className="text-center text-gray-500">No connections yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {matchedUsers.map((user, i) => (
-              <div key={i} className="bg-white p-4 rounded-lg shadow">
-                <img
-                  src={user.images?.[0]}
-                  alt="Profile"
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <h3 className="text-lg font-bold text-indigo-700">{user.firstName}</h3>
-                <p className="text-sm text-gray-600">{user.city}</p>
-                <p className="text-sm text-gray-600">
-                  Interests: {user.interest1}, {user.interest2}
-                </p>
-              </div>
+  return (
+    <div className="grid grid-cols-1 gap-6">
+      {connections.map((user) => (
+        <div key={user.uid} className="bg-white shadow-lg rounded-lg p-6 text-center">
+          <Slider dots infinite speed={500} slidesToShow={1} slidesToScroll={1}>
+            {user.images?.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Profile ${i}`}
+                className="rounded-xl w-full h-64 object-cover mb-4"
+              />
             ))}
+          </Slider>
+          <h2 className="text-xl font-bold text-indigo-700">
+            {user.firstName} ({user.city})
+          </h2>
+          <p className="text-gray-600">
+            {user.interest1}, {user.interest2}
+          </p>
+          <div className="flex justify-center gap-4 mt-4">
+            <Button
+              className="bg-green-500 hover:bg-green-600"
+              onClick={() => navigate(`/chat/${user.uid}?matchId=${user.matchId}`)}
+            >
+              Chat
+            </Button>
+            <Button
+              className="bg-red-500 hover:bg-red-600"
+              onClick={() => handleUnmatch(user.matchId)}
+            >
+              Unmatch
+            </Button>
           </div>
-        )}
-      </div>
-      <Footer />
-    </>
+        </div>
+      ))}
+    </div>
   );
 };
 

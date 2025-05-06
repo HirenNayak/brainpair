@@ -4,7 +4,8 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
-import Pomodoro from './pages/PomodoroTimerApp';
+import ImageUploadPage from './pages/ImageUploadPage'; 
+import Pomodoro from './pages/PomodoroTimerApp'; 
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/setup" element={<ProfileSetupPage />} />
-        <Route path="/pomodoro" element={<Pomodoro />} />
+        <Route path="/upload" element={<ImageUploadPage />} /> 
+        <Route path="/pomodoro" element={<Pomodoro />} /> 
       </Routes>
     </Router>
   );

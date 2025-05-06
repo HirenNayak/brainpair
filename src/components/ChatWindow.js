@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import Filter from "bad-words";
 import {
     collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "firebase/firestore";
@@ -28,7 +29,12 @@ function ChatWindow ({ selectedUser}){
     }, [messages]);
    
     const sendMessage = async() => {
+        const filter = new Filter();
         if(text.trim() === "") return;
+        if(filter.isProfane(text)){
+            alert("Please avoid using inappropraite language.")
+            return;
+        }
 
         await addDoc(collection(db, "chats", chatId, "messages"), {
             senderId: currentUser.uid, text, timestamp: serverTimestamp(),

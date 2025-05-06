@@ -48,7 +48,7 @@ function ChatPage() {
                     <Button onClick={() => console.log ('Logout')} >Logout</Button>
                 </div>
             </div>
-            
+
             {/* MIDDLE: USER LIST */}
         <div className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
           <h3 className="text-lg font-bold mb-4 text-gray-700">Matched Users</h3>
@@ -67,15 +67,21 @@ function ChatPage() {
           ))}
         </div>
 
-            {/* Chat window placehoder */}
-            <div className="w-3/5 p-4">
-                <div className="text-center text-gray-400 mt-40">
-                    <p>Select a user from the left to start chatting.</p>
-                </div>
 
+       {/* RIGHT: CHAT WINDOW */}
+       
+        <div className="w-3/5 p-4">
+          {selectedUser ? (
+            <ChatWindow selectedUser={selectedUser} />
+          ) : (
+            <div className="text-center text-gray-400 mt-40">
+              <p>Select a user from the left to start chatting.</p>
             </div>
+          )}
         </div>
-        </>
+      </div>
+      <footer />
+     </>
     );
 }
 export default ChatPage;

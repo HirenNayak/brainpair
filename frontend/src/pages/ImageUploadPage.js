@@ -13,8 +13,15 @@ const ImageUploadPage = () => {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 4);
-    setImages(files);
+    const selected = Array.from(e.target.files);
+    const total = [...images, ...selected].slice(0, 4); // Limit to 4 total
+    setImages(total);
+  };
+
+  const removeImage = (index) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
   };
 
   const handleUpload = async () => {
@@ -34,7 +41,9 @@ const ImageUploadPage = () => {
 
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      const firstName = userDoc.exists() ? userDoc.data().firstName?.toLowerCase() || user.uid : user.uid;
+      const firstName = userDoc.exists()
+        ? userDoc.data().firstName?.toLowerCase() || user.uid
+        : user.uid;
 
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
@@ -50,7 +59,6 @@ const ImageUploadPage = () => {
         });
 
         const data = await res.json();
-
         if (!data.secure_url) {
           throw new Error("Upload failed");
         }
@@ -77,8 +85,12 @@ const ImageUploadPage = () => {
 
       <div className="min-h-screen bg-indigo-50 flex items-center justify-center py-12 px-6">
         <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Upload Profile Pictures</h2>
-          <p className="text-center text-gray-600 mb-6">Select 2–4 clear images that best represent you</p>
+          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+            Upload Profile Pictures
+          </h2>
+          <p className="text-center text-gray-600 mb-6">
+            Select 2–4 clear images that best represent you
+          </p>
 
           <label className="block w-full p-4 border-2 border-dashed border-indigo-300 text-center rounded-lg cursor-pointer hover:bg-indigo-100 transition mb-6">
             <input
@@ -88,19 +100,28 @@ const ImageUploadPage = () => {
               onChange={handleFileChange}
               className="hidden"
             />
-            <span className="text-sm text-indigo-500 font-medium">Click to select or drag images here</span>
+            <span className="text-sm text-indigo-500 font-medium">
+              Click to select or drag images here
+            </span>
             <p className="text-xs text-gray-500 mt-1">Maximum 4 images allowed</p>
           </label>
 
           {images.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mb-6">
               {images.map((img, i) => (
-                <div key={i} className="relative">
+                <div key={i} className="relative group">
                   <img
                     src={URL.createObjectURL(img)}
                     alt={`Preview ${i}`}
                     className="rounded-lg w-full h-32 object-cover shadow-sm"
                   />
+                  <button
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 bg-white text-red-500 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-100"
+                    title="Remove"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
             </div>

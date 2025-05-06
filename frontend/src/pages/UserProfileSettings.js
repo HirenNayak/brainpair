@@ -1,10 +1,30 @@
 import React, {useEffect, useState} from "react";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import { db, auth } from "../firebase/firebase-config";
+import { onAuthStateChanged } from "firebase/auth";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+
+const SelectField = ({ label, name, value, onChange, options }) => (
+    <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <select
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+            <option value="">-- Select --</option>
+            {options.map((opt) => (
+                <option key={opt} value={opt}>
+                    {opt}
+                </option>
+            ))}
+        </select>
+    </div>
+);
 
 const universities = [
     "University of Auckland", "Auckland University of Technology (AUT)",
@@ -23,7 +43,8 @@ const cities = [
 ];
 
 const UserProfileSettings = () => {
-    const navigate = useNavigate(); //
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true); // ✅ Add loading state
 
     const [form, setForm] = useState({
         university: "",
@@ -39,7 +60,6 @@ const UserProfileSettings = () => {
         endTime: ""
     });
 
-//fetching the current user's profile data from firebase
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -47,7 +67,7 @@ const UserProfileSettings = () => {
                     const docRef = doc(db, "users", user.uid);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        setForm({...form, ...docSnap.data()});
+                        setForm({ ...form, ...docSnap.data() });
                     }
                 } catch (err) {
                     console.log("Error fetching user profile:", err);
@@ -61,10 +81,10 @@ const UserProfileSettings = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = (e) => {
-        setForm({...form, [e.target.name]: e.target.value});
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async () => {
@@ -75,8 +95,7 @@ const UserProfileSettings = () => {
                 return;
             }
 
-
-            await setDoc(doc(db, "users", user.uid), form, {merge: true});
+            await setDoc(doc(db, "users", user.uid), form, { merge: true });
 
             alert("Profile updated!");
             navigate("/");
@@ -87,5 +106,45 @@ const UserProfileSettings = () => {
 
     if (loading) return <p className="text-center mt-10">Loading...</p>;
 
+    return (
+        <>
+            <Header />
+            <div className="min-h-screen bg-indigo-50 flex items-center justify-center py-12 px-6">
+                <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
+                    <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Edit Your Profile</h2>
 
-}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <SelectField label="University" name="university" value={form.university} onChange={handleChange} options={universities} />
+                        <SelectField label="Course" name="course" value={form.course} onChange={handleChange} options={courses} />
+                        <SelectField label="Year" name="year" value={form.year} onChange={handleChange} options={["1", "2", "3", "4"]} />
+                        <SelectField label="Interest 1" name="interest1" value={form.interest1} onChange={handleChange} options={interest} />
+                        <SelectField label="Interest 2" name="interest2" value={form.interest2} onChange={handleChange} options={interest} />
+                        <SelectField label="Age" name="age" value={form.age} onChange={handleChange} options={[...Array(25)].map((_, i) => (i + 16).toString())} />
+                        <SelectField label="Gender" name="gender" value={form.gender} onChange={handleChange} options={["Male", "Female", "Other"]} />
+                        <SelectField label="City" name="city" value={form.city} onChange={handleChange} options={cities} />
+                        <SelectField label="Available Day" name="day" value={form.day} onChange={handleChange} options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]} />
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                            <input type="time" name="startTime" value={form.startTime} onChange={handleChange}
+                                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                            <input type="time" name="endTime" value={form.endTime} onChange={handleChange}
+                                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                        </div>
+                    </div>
+
+                    <div className="mt-6 text-center">
+                        <Button onClick={handleSubmit}>Save Profile</Button>
+                    </div>
+                </div>
+            </div>
+            <Footer />
+        </>
+    );
+};
+
+export default UserProfileSettings;

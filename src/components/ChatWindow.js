@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
     collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "firebase/firestore";
+import { async } from "@firebase/util";
 
 function ChatWindow ({ selectedUser}){
     const currentUser = auth.currentUser;
@@ -19,9 +20,16 @@ function ChatWindow ({ selectedUser}){
         return () => unsubscribe();
     }), [chatId];
     
+    useEffect (() => {
+        bottomRef.current?.scrollIntoView({behavior: "smooth"});
+    }, [messages]);
    
-    const sendMessage =() =>{
-        console.log("sending message: ", text);
+    const sendMessage = async() => {
+        if(text.trim() == "") return;
+
+        await addDoc(collection(db, "chat", chatId, "messages"), {
+            senderId: currentUser.uid, text, timestamp: serverTimestamp()
+        });
         setText("");
     };
     return(

@@ -149,7 +149,7 @@ const PomodoroTimerApp = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-grow pt-10">
+            <main className="flex-grow flex justify-center items-center pt-10">
                 <div className="w-full max-w-4xl mx-auto p-10 sm:p-12 md:p-16 lg:p-20 bg-white rounded-2xl shadow-lg text-center mt-10">
                     <div className="flex justify-center gap-2 mb-4">
                         {["pomodoro", "shortBreak", "longBreak"].map((label) => (
@@ -160,7 +160,11 @@ const PomodoroTimerApp = () => {
                                     mode === label ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                 }`}
                             >
-                                {label === "pomodoro" ? "Pomodoro" : label === "shortBreak" ? "Short Break" : "Long Break"}
+                                {label === "pomodoro"
+                                    ? "Pomodoro"
+                                    : label === "shortBreak"
+                                    ? "Short Break"
+                                    : "Long Break"}
                             </button>
                         ))}
                     </div>

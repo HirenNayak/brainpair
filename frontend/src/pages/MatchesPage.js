@@ -15,30 +15,32 @@ const MatchesPage = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const current = auth.currentUser;
-      if (!current) return;
-
-      const currentDoc = await getDoc(doc(db, "users", current.uid));
-      const allDocs = await getDocs(collection(db, "users"));
-
-      const others = [];
-      allDocs.forEach((docSnap) => {
-        if (docSnap.id !== current.uid) {
-          others.push({ uid: docSnap.id, ...docSnap.data() });
-        }
-      });
-
-      const filtered = others.filter((user) =>
-        user.interest1 === currentDoc.data().interest1 ||
-        user.interest2 === currentDoc.data().interest1 ||
-        user.interest1 === currentDoc.data().interest2 ||
-        user.interest2 === currentDoc.data().interest2
-      );
-
-      setCurrentUser({ uid: current.uid, ...currentDoc.data() });
-      setFilteredUsers(filtered);
-    };
-
+        const current = auth.currentUser;
+        if (!current) return;
+      
+        const currentDoc = await getDoc(doc(db, "users", current.uid));
+        const swipeDoc = await getDoc(doc(db, "swipes", current.uid));
+        const swipedUserIds = swipeDoc.exists() ? Object.keys(swipeDoc.data()) : [];
+      
+        const allDocs = await getDocs(collection(db, "users"));
+        const others = [];
+        allDocs.forEach((docSnap) => {
+          if (docSnap.id !== current.uid && !swipedUserIds.includes(docSnap.id)) {
+            others.push({ uid: docSnap.id, ...docSnap.data() });
+          }
+        });
+      
+        const filtered = others.filter((user) =>
+          user.interest1 === currentDoc.data().interest1 ||
+          user.interest2 === currentDoc.data().interest1 ||
+          user.interest1 === currentDoc.data().interest2 ||
+          user.interest2 === currentDoc.data().interest2
+        );
+      
+        setCurrentUser({ uid: current.uid, ...currentDoc.data() });
+        setFilteredUsers(filtered);
+      };
+      
     fetchUsers();
   }, []);
 

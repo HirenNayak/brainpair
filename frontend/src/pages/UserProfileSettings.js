@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import React, {useEffect, useState} from "react";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 import { db, auth } from "../firebase/firebase-config";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -22,7 +22,7 @@ const cities = [
     "Tauranga", "Palmerston North", "Napier", "Rotorua", "New Plymouth"
 ];
 
-const ProfileSetupPage = () => {
+const UserProfileSettings = () => {
     const navigate = useNavigate(); //
 
     const [form, setForm] = useState({
@@ -38,3 +38,41 @@ const ProfileSetupPage = () => {
         startTime: "",
         endTime: ""
     });
+
+//fetching the current user's profile data from firebase
+    const MyComponent = () => {
+        const [form, setForm] = useState(null);
+        const navigate = useNavigate();
+
+        useEffect(() => {
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    try {
+                        const docRef = doc(db, "users", user.uid);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            setForm(docSnap.data());
+                        } else {
+                            console.log("No profile data found for this user.");
+                        }
+                    } catch (err) {
+                        console.log("Error fetching user profile:", err);
+                    }
+                } else {
+                    alert("No user logged in.");
+                    navigate("/login");
+                }
+            });
+
+            return () => unsubscribe(); // Cleanup listener on unmount.
+        }, [navigate]);
+
+        return (
+            <div>
+                {/* Render form data or a loading state here */}
+                {form ? <pre>{JSON.stringify(form, null, 2)}</pre> : <p>Loading...</p>}
+            </div>
+        );
+    };
+
+    export default MyComponent;

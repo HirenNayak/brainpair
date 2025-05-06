@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
 import Slider from "react-slick";
+import { handleSwipe } from "../utils/matchHandler";
 
 const MatchesPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -43,6 +44,13 @@ const MatchesPage = () => {
 
   const currentProfile = filteredUsers[index];
 
+  const swipe = async (direction) => {
+    if (!currentUser || !currentProfile) return;
+    await handleSwipe(currentUser, currentProfile, direction);
+    setShowDetails(false);
+    setIndex(index + 1);
+  };
+
   return (
     <>
       <Header />
@@ -72,9 +80,9 @@ const MatchesPage = () => {
               }
             </p>
             <div className="flex justify-center gap-6 mt-6">
-              <Button className="bg-red-500 hover:bg-red-600">Dislike</Button>
+              <Button onClick={() => swipe("left")} className="bg-red-500 hover:bg-red-600">Dislike</Button>
               <Button onClick={() => setShowDetails(!showDetails)} className="bg-gray-300 text-gray-800">⋯</Button>
-              <Button className="bg-green-500 hover:bg-green-600">Like</Button>
+              <Button onClick={() => swipe("right")} className="bg-green-500 hover:bg-green-600">Like</Button>
             </div>
 
             {showDetails && (

@@ -51,7 +51,7 @@ function ChatPage() {
                 <ul className="space-y-4">
                     <li><Link to="/dashboard" className="hover:underline">Dashboard</Link></li>
                     <li><Link to="/matches" className="hover:underline">Matches</Link></li>
-                    <li><Link to="/timer" className="hover:underline">Timer</Link></li>
+                    <li><Link to="/timer" className="hover:underline">Pomodoro Timer</Link></li>
                     <li><Link to="/chat" className="hover:underline">Chat</Link></li>
                     <li><Link to="/profile-setting" className="hover:underline">Profile Setting</Link></li>
                 </ul>

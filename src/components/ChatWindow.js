@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import Filter from "bad-words";
+import { Filter } from "bad-words";
 import {
     collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "firebase/firestore";
@@ -29,6 +29,7 @@ function ChatWindow ({ selectedUser}){
     }, [messages]);
    
     const sendMessage = async() => {
+
         const filter = new Filter();
         if(text.trim() === "") return;
         if(filter.isProfane(text)){

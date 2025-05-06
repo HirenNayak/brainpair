@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase/firebase-config";
-import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
+import Slider from "react-slick";
 
 const MatchesPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [index, setIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
@@ -35,42 +35,11 @@ const MatchesPage = () => {
       );
 
       setCurrentUser({ uid: current.uid, ...currentDoc.data() });
-      setAllUsers(others);
       setFilteredUsers(filtered);
     };
 
     fetchUsers();
   }, []);
-
-  const handleSwipe = async (direction) => {
-    const targetUser = filteredUsers[index];
-    if (!targetUser) return;
-
-    const swipeRef = doc(db, "swipes", currentUser.uid);
-    const swipeData = (await getDoc(swipeRef)).data() || {};
-
-    swipeData[targetUser.uid] = direction;
-    await setDoc(swipeRef, swipeData, { merge: true });
-
-    // Check for match
-    if (direction === "right") {
-      const targetSwipeRef = doc(db, "swipes", targetUser.uid);
-      const targetSwipeDoc = await getDoc(targetSwipeRef);
-      if (targetSwipeDoc.exists()) {
-        const targetSwipes = targetSwipeDoc.data();
-        if (targetSwipes[currentUser.uid] === "right") {
-          const matchId = [currentUser.uid, targetUser.uid].sort().join("_");
-          await setDoc(doc(db, "matches", matchId), {
-            users: [currentUser.uid, targetUser.uid],
-            timestamp: new Date()
-          });
-        }
-      }
-    }
-
-    setShowDetails(false);
-    setIndex(index + 1);
-  };
 
   const currentProfile = filteredUsers[index];
 
@@ -80,11 +49,18 @@ const MatchesPage = () => {
       <div className="min-h-screen bg-indigo-50 flex flex-col items-center py-10 px-6">
         {currentProfile ? (
           <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center">
-            <img
-              src={currentProfile.images?.[0]}
-              alt="Profile"
-              className="rounded-xl w-full h-64 object-cover mb-4"
-            />
+            {currentProfile.images?.length > 0 && (
+              <Slider dots infinite speed={500} slidesToShow={1} slidesToScroll={1}>
+                {currentProfile.images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={`Profile ${i}`}
+                    className="rounded-xl w-full h-64 object-cover mb-4"
+                  />
+                ))}
+              </Slider>
+            )}
             <h2 className="text-xl font-bold text-indigo-700">
               {currentProfile.firstName} ({currentProfile.city})
             </h2>
@@ -96,9 +72,9 @@ const MatchesPage = () => {
               }
             </p>
             <div className="flex justify-center gap-6 mt-6">
-              <Button onClick={() => handleSwipe("left")} className="bg-red-500 hover:bg-red-600">Dislike</Button>
+              <Button className="bg-red-500 hover:bg-red-600">Dislike</Button>
               <Button onClick={() => setShowDetails(!showDetails)} className="bg-gray-300 text-gray-800">⋯</Button>
-              <Button onClick={() => handleSwipe("right")} className="bg-green-500 hover:bg-green-600">Like</Button>
+              <Button className="bg-green-500 hover:bg-green-600">Like</Button>
             </div>
 
             {showDetails && (

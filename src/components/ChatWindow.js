@@ -1,11 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "firebase/firestore";
 
 function ChatWindow ({ selectedUser}){
+    const currentUser = auth.currentUser;
+    const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
-
+    const chatId = [currentUser.uid, selectedUser.id].sort().join("_");
+    const bottomRef = useRef(null);
+    useEffect(() => {
+        const  q = query(
+            collection(db, "chat", chatId, "messages"), orderBy("timestamp")
+        );
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setMessages(snapshot.docs.map((doc) => doc.data()));
+        });
+        return () => unsubscribe();
+    }), [chatId];
+    
+   
     const sendMessage =() =>{
         console.log("sending message: ", text);
         setText("");

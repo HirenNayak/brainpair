@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Added
 import { auth, db } from "../firebase/firebase-config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Header from "../components/Header";
@@ -11,20 +12,20 @@ const UPLOAD_PRESET = "brainpair_upload";
 const ImageUploadPage = () => {
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate(); // ✅ Added
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
-  
-    // Check if total exceeds 4
+
     if (images.length + selected.length > 4) {
       alert("You can upload a maximum of 4 images only.");
       return;
     }
-  
+
     const total = [...images, ...selected];
     setImages(total);
   };
-  
+
   const removeImage = (index) => {
     const newImages = [...images];
     newImages.splice(index, 1);
@@ -78,6 +79,7 @@ const ImageUploadPage = () => {
       });
 
       alert("Images uploaded successfully!");
+      navigate("/dashboard"); // ✅ Redirect to dashboard
     } catch (err) {
       console.error("Error:", err);
       alert("Something went wrong: " + err.message);

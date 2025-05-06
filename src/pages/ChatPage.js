@@ -18,6 +18,7 @@ function ChatPage() {
 
     //Only matched users 
     useEffect(() => {
+      
         if (!currentUser) return;
       
         const fetchMatchedUsers = async () => {

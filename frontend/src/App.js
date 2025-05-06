@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import ImageUploadPage from './pages/ImageUploadPage'; 
+import DashboardPage from "./pages/DashboardPage";
+
 import Pomodoro from './pages/PomodoroTimerApp'; 
 
 function App() {
@@ -16,6 +18,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/setup" element={<ProfileSetupPage />} />
         <Route path="/upload" element={<ImageUploadPage />} /> 
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/pomodoro" element={<Pomodoro />} /> 
       </Routes>
     </Router>

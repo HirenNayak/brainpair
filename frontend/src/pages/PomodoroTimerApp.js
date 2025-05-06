@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Button from "../components/Button.js";
-import '../style/PomodoroTimerApp.css';
 
 // Constants
 const POMODORO_TIME = 25 * 60;
@@ -45,22 +43,32 @@ const TimerDisplay = ({ seconds, mode }) => {
     const minutes = Math.floor(seconds / 60);
     const secondsLeft = String(seconds % 60).padStart(2, "0");
     return (
-        <div className="timer-display">
-            <h2>{mode.toUpperCase()}</h2>
-            <p style={{ fontSize: "3rem" }}>{`${minutes}:${secondsLeft}`}</p>
+        <div className="text-center my-6">
+            <h2 className="text-xl font-semibold uppercase">{mode}</h2>
+            <p className="text-6xl font-bold">{`${minutes}:${secondsLeft}`}</p>
         </div>
     );
 };
 
 // Control buttons
 const TimeControls = ({ isRunning, onStart, onStop, onReset, isResetDisabled }) => (
-    <div className="time-controls">
+    <div className="flex justify-center gap-4 mt-4">
         {isRunning ? (
-            <button onClick={onStop}>Stop</button>
+            <button onClick={onStop} className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600">
+                Stop
+            </button>
         ) : (
-            <button onClick={onStart}>Start</button>
+            <button onClick={onStart} className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600">
+                Start
+            </button>
         )}
-        <Button onClick={onReset} disabled={isResetDisabled}>Reset</Button>
+        <button
+            onClick={onReset}
+            disabled={isResetDisabled}
+            className={`px-4 py-2 rounded-lg shadow-md ${isResetDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+        >
+            Reset
+        </button>
     </div>
 );
 
@@ -139,28 +147,23 @@ const PomodoroTimerApp = () => {
     };
 
     return (
-        <div className="pomodoro-timer-app">
-            <h1 className="pomodoro">Pomodoro Timer</h1>
+        <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg text-center mt-10">
+            <h1 className="text-3xl font-bold mb-6 text-gray-800">Pomodoro Timer</h1>
 
-            <div className="mode-selection">
-                <button
-                    onClick={() => handleModeChange('pomodoro')}
-                    className={`mode-button ${mode === "pomodoro" ? 'active' : ''}`}
-                >
-                    Pomodoro
-                </button>
-                <button
-                    onClick={() => handleModeChange('shortBreak')}
-                    className={`mode-button ${mode === "shortBreak" ? 'active' : ''}`}
-                >
-                    Short Break
-                </button>
-                <button
-                    onClick={() => handleModeChange('longBreak')}
-                    className={`mode-button ${mode === "longBreak" ? 'active' : ''}`}
-                >
-                    Long Break
-                </button>
+            <div className="flex justify-center gap-2 mb-6">
+                {["pomodoro", "shortBreak", "longBreak"].map((label) => (
+                    <button
+                        key={label}
+                        onClick={() => handleModeChange(label)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium ${
+                            mode === label
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        }`}
+                    >
+                        {label === "pomodoro" ? "Pomodoro" : label === "shortBreak" ? "Short Break" : "Long Break"}
+                    </button>
+                ))}
             </div>
 
             <TimerDisplay seconds={time} mode={mode} />

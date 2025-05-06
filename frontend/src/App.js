@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
  import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
          <Route path="/chat/:userId" element={<ChatPage />} />
         <Route path="/pomodoro" element={<Pomodoro />} />
         <Route path="/settings" element={<UserProfileSettings />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );

@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import {
+    collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
+} from "firebase/firestore";
 
 function ChatWindow ({ selectedUser}){
     const [text, setText] = useState("");

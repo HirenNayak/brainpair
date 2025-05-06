@@ -7,6 +7,7 @@ import ProfileSetupPage from './pages/ProfileSetupPage';
 import ImageUploadPage from './pages/ImageUploadPage'; 
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/upload" element={<ImageUploadPage />} /> 
         <Route path="/pomodoro" element={<Pomodoro />} />
         <Route path="/settings" element={<UserProfileSettings />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );

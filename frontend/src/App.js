@@ -14,11 +14,12 @@ import ConnectionsPage from "./pages/ConnectionsPage";
 import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
+import MessageListener from "./components/MessageListener"; // ✅ Import listener
 
 function App() {
   return (
     <Router>
-      {/* ✅ ToastContainer should be inside Router, outside Routes */}
+      <MessageListener /> {/* ✅ Global toast-based chat listener */}
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<LandingPage />} />

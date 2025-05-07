@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 
 const MessageListener = () => {
   const location = useLocation();
-  const initTimeRef = useRef(Date.now()); // track when user loads app
+  const shownMessages = useRef(new Set()); // ✅ track shown messages
 
   useEffect(() => {
     let unsubscribes = [];
@@ -30,19 +30,21 @@ const MessageListener = () => {
         const msgRef = ref(rtdb, `messages/${matchId}`);
         const unsub = onChildAdded(msgRef, async (snapshot) => {
           const msg = snapshot.val();
-          const msgTime = new Date(msg.timestamp).getTime();
+          const messageId = snapshot.key;
 
+          // ✅ Only notify if it's a new, unseen message
           if (
             msg.sender !== user.uid &&
-            msgTime > initTimeRef.current && // only after listener started
+            !shownMessages.current.has(messageId) &&
             !location.pathname.includes(`/chat/${otherId}`)
           ) {
+            shownMessages.current.add(messageId); // ✅ mark as seen
+
             const userDoc = await getDoc(doc(db, "users", otherId));
             const name = userDoc.exists() ? userDoc.data().firstName : "Someone";
-            toast.info(`${name} sent you a new message 💬`);
+            toast.info(`${name} sent you a message! 💬`);
           }
         });
-
         unsubscribes.push(() => unsub());
       });
     };

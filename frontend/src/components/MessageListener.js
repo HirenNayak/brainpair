@@ -2,14 +2,14 @@ import { useEffect, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, rtdb, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { onChildAdded, ref } from "firebase/database";
+import { onChildAdded, ref, get } from "firebase/database";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 
 const MessageListener = () => {
   const location = useLocation();
-  const shownMessages = useRef(new Set()); // track shown message IDs
-  const initialKeys = useRef(new Set());   // track messages already present
+  const shownMessages = useRef(new Set()); // ✅ track shown message IDs
+  const initialKeys = useRef(new Set());   // ✅ store initially loaded messages
 
   useEffect(() => {
     const unsubscribes = [];
@@ -27,21 +27,17 @@ const MessageListener = () => {
         }
       });
 
-      matched.forEach(({ matchId, otherId }) => {
+      for (const { matchId, otherId } of matched) {
         const msgRef = ref(rtdb, `messages/${matchId}`);
 
-        // Step 1: preload existing messages so we don’t notify for them
-        const preload = (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            Object.keys(data).forEach((key) => initialKeys.current.add(key));
-          }
-        };
+        // ✅ Step 1: Preload existing messages once
+        const snapshot = await get(msgRef);
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).forEach((key) => initialKeys.current.add(key));
+        }
 
-        // Use a separate ref to avoid double-triggering
-        rtdb.ref(`messages/${matchId}`).once("value", preload);
-
-        // Step 2: listen for *new* messages
+        // ✅ Step 2: Attach listener after preload
         const unsub = onChildAdded(msgRef, async (snapshot) => {
           const msg = snapshot.val();
           const messageId = snapshot.key;
@@ -60,7 +56,7 @@ const MessageListener = () => {
         });
 
         unsubscribes.push(() => unsub());
-      });
+      }
     };
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -73,7 +69,7 @@ const MessageListener = () => {
     };
   }, [location]);
 
-  return null;
+  return null; // ✅ No UI element
 };
 
 export default MessageListener;

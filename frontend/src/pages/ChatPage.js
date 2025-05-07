@@ -139,6 +139,9 @@ const ChatPage = () => {
             className="flex-1 border border-gray-300 rounded px-4 py-2"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
+            }}
             placeholder="Type your message..."
           />
           <button

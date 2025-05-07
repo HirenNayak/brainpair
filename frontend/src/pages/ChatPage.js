@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { db, rtdb, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
+import { toast } from "react-toastify"; // ✅ Toast added
 
 const ChatPage = () => {
   const { userId } = useParams();
@@ -63,17 +64,27 @@ const ChatPage = () => {
   }, [selectedUser, currentUser]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-    const matchId = getMatchId(currentUser.uid, selectedUser.uid);
-    const msgRef = ref(rtdb, `messages/${matchId}`);
+    if (!newMessage.trim()) {
+      toast.warning("Please enter a message.");
+      return;
+    }
 
-    await push(msgRef, {
-      sender: currentUser.uid,
-      text: newMessage,
-      timestamp: new Date().toISOString(),
-    });
+    try {
+      const matchId = getMatchId(currentUser.uid, selectedUser.uid);
+      const msgRef = ref(rtdb, `messages/${matchId}`);
 
-    setNewMessage("");
+      await push(msgRef, {
+        sender: currentUser.uid,
+        text: newMessage,
+        timestamp: new Date().toISOString(),
+      });
+
+      toast.success("Message sent!");
+      setNewMessage("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send message.");
+    }
   };
 
   return (

@@ -8,10 +8,11 @@ import { useLocation } from "react-router-dom";
 
 const MessageListener = () => {
   const location = useLocation();
-  const shownMessages = useRef(new Set()); // ✅ track shown messages
+  const shownMessages = useRef(new Set()); // track shown message IDs
+  const initialKeys = useRef(new Set());   // track messages already present
 
   useEffect(() => {
-    let unsubscribes = [];
+    const unsubscribes = [];
 
     const setupListeners = async (user) => {
       const snapshot = await getDocs(collection(db, "matches"));
@@ -28,31 +29,42 @@ const MessageListener = () => {
 
       matched.forEach(({ matchId, otherId }) => {
         const msgRef = ref(rtdb, `messages/${matchId}`);
+
+        // Step 1: preload existing messages so we don’t notify for them
+        const preload = (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            Object.keys(data).forEach((key) => initialKeys.current.add(key));
+          }
+        };
+
+        // Use a separate ref to avoid double-triggering
+        rtdb.ref(`messages/${matchId}`).once("value", preload);
+
+        // Step 2: listen for *new* messages
         const unsub = onChildAdded(msgRef, async (snapshot) => {
           const msg = snapshot.val();
           const messageId = snapshot.key;
 
-          // ✅ Only notify if it's a new, unseen message
           if (
             msg.sender !== user.uid &&
             !shownMessages.current.has(messageId) &&
+            !initialKeys.current.has(messageId) &&
             !location.pathname.includes(`/chat/${otherId}`)
           ) {
-            shownMessages.current.add(messageId); // ✅ mark as seen
-
+            shownMessages.current.add(messageId);
             const userDoc = await getDoc(doc(db, "users", otherId));
             const name = userDoc.exists() ? userDoc.data().firstName : "Someone";
-            toast.info(`${name} sent you a message! 💬`);
+            toast.info(`${name} sent you a message 💬`);
           }
         });
+
         unsubscribes.push(() => unsub());
       });
     };
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setupListeners(user);
-      }
+      if (user) setupListeners(user);
     });
 
     return () => {

@@ -29,7 +29,12 @@ const MatchesPage = () => {
       const others = [];
       allDocs.forEach((docSnap) => {
         if (docSnap.id !== current.uid && !swipedUserIds.includes(docSnap.id)) {
-          others.push({ uid: docSnap.id, ...docSnap.data() });
+          const userData = docSnap.data();
+          others.push({
+            uid: docSnap.id,
+            ...userData,
+            reviews: userData.reviews || [],
+          });
         }
       });
 
@@ -79,12 +84,25 @@ const MatchesPage = () => {
                 ))}
               </Slider>
             )}
+
             <h2 className="text-xl font-bold text-indigo-700">
               {currentProfile.firstName} ({currentProfile.city})
             </h2>
-            <p className="text-sm text-gray-500 mt-2">
-              ⭐ {currentProfile.reviews?.length || 0} reviews
-            </p>
+
+            {/* ⭐ Review summary on swipe card */}
+            {(() => {
+              const reviewCount = currentProfile.reviews?.length || 0;
+              if (reviewCount === 0) {
+                return <p className="text-sm text-gray-500 mt-2">⭐ 0 reviews</p>;
+              }
+              const avg = currentProfile.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount;
+              return (
+                <p className="text-sm text-gray-500 mt-2">
+                  ⭐ {avg.toFixed(1)} ({reviewCount} review{reviewCount > 1 ? "s" : ""})
+                </p>
+              );
+            })()}
+
             <p className="text-gray-600 mt-1">
               Interest match: {
                 currentUser.interest1 === currentProfile.interest1 || currentUser.interest1 === currentProfile.interest2
@@ -92,6 +110,7 @@ const MatchesPage = () => {
                   : currentUser.interest2
               }
             </p>
+
             <div className="flex justify-center gap-6 mt-6">
               <Button onClick={() => swipe("left")} className="bg-red-500 hover:bg-red-600">Dislike</Button>
               <Button onClick={() => setShowDetails(!showDetails)} className="bg-gray-300 text-gray-800">⋯</Button>
@@ -105,6 +124,28 @@ const MatchesPage = () => {
                 <p><strong>University:</strong> {currentProfile.university}</p>
                 <p><strong>Interests:</strong> {currentProfile.interest1}, {currentProfile.interest2}</p>
                 <p><strong>Availability:</strong> {currentProfile.day} {currentProfile.startTime}–{currentProfile.endTime}</p>
+
+                {/* ⭐ Expanded review details */}
+                {currentProfile.reviews?.length > 0 ? (() => {
+                  const avg = currentProfile.reviews.reduce((sum, r) => sum + r.rating, 0) / currentProfile.reviews.length;
+                  const recentReviews = [...currentProfile.reviews]
+                    .sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0))
+                    .slice(0, 3);
+
+                  return (
+                    <div className="mt-4">
+                      <p><strong>Average Rating:</strong> ⭐ {avg.toFixed(1)}</p>
+                      <p><strong>Recent Reviews:</strong></p>
+                      <div className="max-h-32 overflow-y-auto text-sm text-gray-600 space-y-1 mt-1">
+                        {recentReviews.map((r, i) => (
+                          <p key={i}>⭐ {r.rating} — “{r.comment}”</p>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })() : (
+                  <p className="mt-4 text-sm text-gray-500">No reviews yet.</p>
+                )}
               </div>
             )}
           </div>

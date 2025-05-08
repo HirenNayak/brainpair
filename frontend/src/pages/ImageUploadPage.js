@@ -16,12 +16,10 @@ const ImageUploadPage = () => {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
-
     if (images.length + selected.length > 4) {
       alert("You can upload a maximum of 4 images only.");
       return;
     }
-
     const total = [...images, ...selected];
     setImages(total);
   };
@@ -32,7 +30,9 @@ const ImageUploadPage = () => {
     setImages(newImages);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (e) => {
+    if (e) e.preventDefault(); // prevent form refresh
+
     if (images.length < 2) {
       alert("Please select at least 2 images.");
       return;
@@ -96,46 +96,49 @@ const ImageUploadPage = () => {
             Select 2–4 clear images that best represent you
           </p>
 
-          <label className="block w-full p-4 border-2 border-dashed border-indigo-300 text-center rounded-lg cursor-pointer hover:bg-indigo-100 transition mb-6">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <span className="text-sm text-indigo-500 font-medium">
-              Click to select or drag images here
-            </span>
-            <p className="text-xs text-gray-500 mt-1">Maximum 4 images allowed</p>
-          </label>
+          <form onSubmit={handleUpload}>
+            <label className="block w-full p-4 border-2 border-dashed border-indigo-300 text-center rounded-lg cursor-pointer hover:bg-indigo-100 transition mb-6">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <span className="text-sm text-indigo-500 font-medium">
+                Click to select or drag images here
+              </span>
+              <p className="text-xs text-gray-500 mt-1">Maximum 4 images allowed</p>
+            </label>
 
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              {images.map((img, i) => (
-                <div key={i} className="relative group">
-                  <img
-                    src={URL.createObjectURL(img)}
-                    alt={`Preview ${i}`}
-                    className="rounded-lg w-full h-32 object-cover shadow-sm"
-                  />
-                  <button
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 bg-white text-red-500 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-100"
-                    title="Remove"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {images.map((img, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`Preview ${i}`}
+                      className="rounded-lg w-full h-32 object-cover shadow-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 bg-white text-red-500 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-100"
+                      title="Remove"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center">
+              <Button type="submit" disabled={uploading}>
+                {uploading ? "Uploading..." : "Upload Images"}
+              </Button>
             </div>
-          )}
-
-          <div className="text-center">
-            <Button onClick={handleUpload} disabled={uploading}>
-              {uploading ? "Uploading..." : "Upload Images"}
-            </Button>
-          </div>
+          </form>
         </div>
       </div>
 

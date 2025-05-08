@@ -65,21 +65,11 @@ Then open your browser and go to:
 |--------------------------|--------------------------------------------------------------------------|
 | Blank screen             | Make sure you ran `npm install` inside the `frontend/` folder            |
 | `ref is not a function`  | Ensure you're importing `ref` from `firebase/database`                   |
-| Image upload fails       | Confirm your Cloudinary credentials and preset are correct               |
+| Image upload fails       | Use user.uid for folder/public ID. Check Cloudinary preset settings.     |
 | Firebase errors          | Ensure your `firebase-config.js` uses your actual Firebase project keys  |
 
 ---
 
 ## 📁 Folder Structure
 
-brainpair/
-│
-├── frontend/ # React app source code
-│ ├── pages/ # App pages like ChatPage, DashboardPage, etc.
-│ ├── components/ # Reusable UI components
-│ ├── firebase/ # Firebase configuration and setup
-│ ├── App.js # Main route handler
-│ └── package.json # All dependencies for the app
-│
-├── README.md # This setup guide
-└── .gitignore # Ignored files for Git
+<pre> ```bash 📁 brainpair/ ├── frontend/ # React app source code │ ├── pages/ # App pages like ChatPage, DashboardPage, etc. │ ├── components/ # Reusable UI components │ ├── firebase/ # Firebase configuration and setup │ ├── App.js # Main route handler │ ├── package.json # All dependencies for the app │ └── README.md # This setup guide ├── .gitignore # Ignored files for Git ``` </pre>

@@ -4,6 +4,7 @@ import { db, rtdb, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
 import { toast } from "react-toastify";
+import ReviewModal from "../components/ReviewModal"; 
 
 const ChatPage = () => {
   const { userId } = useParams();
@@ -13,6 +14,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false); 
 
   const getMatchId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
@@ -159,6 +161,23 @@ const ChatPage = () => {
             Send
           </button>
         </div>
+
+        {messages.length >= 10 && (
+          <button
+            onClick={() => setShowReviewModal(true)}
+            className="mt-4 text-sm text-blue-600 underline hover:text-blue-800"
+          >
+            ⭐ Leave a Review
+          </button>
+        )}
+
+        {showReviewModal && (
+          <ReviewModal
+            onClose={() => setShowReviewModal(false)}
+            currentUserId={currentUser?.uid}
+            targetUserId={selectedUser?.uid}
+          />
+        )}
       </div>
     </div>
   );

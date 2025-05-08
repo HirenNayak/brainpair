@@ -33,12 +33,15 @@ const Header = () => {
               <Link to="/register" className="text-gray-600 hover:text-indigo-600 font-medium">Register</Link>
             </>
           ) : (
-            <button
-              onClick={handleLogout}
-              className="text-red-600 hover:text-red-800 font-medium"
-            >
-              Logout
-            </button>
+            <>
+              <Link to="/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium">Dashboard</Link>
+              <button
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-800 font-medium"
+              >
+                Logout
+              </button>
+            </>
           )}
         </nav>
       </div>

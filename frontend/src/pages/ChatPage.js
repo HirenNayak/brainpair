@@ -4,7 +4,7 @@ import { db, rtdb, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
 import { toast } from "react-toastify";
-import ReviewModal from "../components/ReviewModal"; 
+import ReviewModal from "../components/ReviewModal";
 
 const ChatPage = () => {
   const { userId } = useParams();
@@ -14,7 +14,8 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
-  const [showReviewModal, setShowReviewModal] = useState(false); 
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [hasShownReviewPrompt, setHasShownReviewPrompt] = useState(false); // ✅ New
 
   const getMatchId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
@@ -61,10 +62,16 @@ const ChatPage = () => {
       const data = snapshot.val();
       const msgs = data ? Object.values(data) : [];
       setMessages(msgs);
+
+      // ✅ Only show once
+      if (msgs.length >= 10 && !hasShownReviewPrompt) {
+        setHasShownReviewPrompt(true);
+        toast.info("⭐ You can now leave a review!", { autoClose: 4000 });
+      }
     });
 
     return () => unsubscribe();
-  }, [selectedUser, currentUser]);
+  }, [selectedUser, currentUser, hasShownReviewPrompt]); // ✅ Fix added here
 
   const sendMessage = async () => {
     if (!newMessage.trim()) {
@@ -165,7 +172,7 @@ const ChatPage = () => {
         {messages.length >= 10 && (
           <button
             onClick={() => setShowReviewModal(true)}
-            className="mt-4 text-sm text-blue-600 underline hover:text-blue-800"
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
           >
             ⭐ Leave a Review
           </button>

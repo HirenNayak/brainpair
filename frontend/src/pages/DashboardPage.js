@@ -5,6 +5,7 @@ import Pomodoro from "./PomodoroTimerApp";
 import MatchesPage from "./MatchesPage";
 import ConnectionsPage from "./ConnectionsPage";
 import ChatPage from "./ChatPage";
+import UserProfileSettings from "./UserProfileSettings"; 
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -66,6 +67,18 @@ const DashboardPage = () => {
                 Connections
               </button>
             </li>
+            <li>
+              <button
+                className={`w-full text-left px-3 py-2 rounded-lg ${
+                  activeTab === "settings"
+                    ? "bg-indigo-100 text-indigo-700 font-semibold"
+                    : "hover:bg-indigo-50"
+                }`}
+                onClick={() => setActiveTab("settings")}
+              >
+                Profile Settings
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -96,6 +109,13 @@ const DashboardPage = () => {
             <>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Your Connections</h1>
               <ConnectionsPage />
+            </>
+          )}
+
+          {activeTab === "settings" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Edit Your Profile</h1>
+              <UserProfileSettings />
             </>
           )}
         </div>

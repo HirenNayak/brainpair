@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const ConnectionsPage = () => {
   const [connections, setConnections] = useState([]);
-  const [expandedUid, setExpandedUid] = useState(null); // ✅ Track which profile is expanded
+  const [expandedUid, setExpandedUid] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,10 +30,12 @@ const ConnectionsPage = () => {
       for (const entry of connectedUserIds) {
         const userDoc = await getDoc(doc(db, "users", entry.uid));
         if (userDoc.exists()) {
+          const data = userDoc.data();
           userData.push({
             uid: entry.uid,
             matchId: entry.matchId,
-            ...userDoc.data(),
+            ...data,
+            reviews: data.reviews || [], // ✅ Ensure reviews are always an array
           });
         }
       }
@@ -85,6 +87,29 @@ const ConnectionsPage = () => {
               <p><strong>University:</strong> {user.university}</p>
               <p><strong>Course:</strong> {user.course}</p>
               <p><strong>Availability:</strong> {user.day} from {user.startTime} to {user.endTime}</p>
+
+              {/* ⭐ Reviews */}
+              <div className="mt-4">
+                <p className="font-semibold mb-1">⭐ Reviews</p>
+                {user.reviews?.length > 0 ? (() => {
+                  const avg = user.reviews.reduce((sum, r) => sum + r.rating, 0) / user.reviews.length;
+                  const latest = [...user.reviews]
+                    .sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0))
+                    .slice(0, 3);
+                  return (
+                    <div>
+                      <p className="text-gray-800 mb-2">Average Rating: ⭐ {avg.toFixed(1)}</p>
+                      <div className="space-y-1 max-h-32 overflow-y-auto text-sm text-gray-700">
+                        {latest.map((r, i) => (
+                          <p key={i}>⭐ {r.rating} — “{r.comment}”</p>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })() : (
+                  <p className="text-gray-500">No reviews yet.</p>
+                )}
+              </div>
             </div>
           )}
 

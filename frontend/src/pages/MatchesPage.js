@@ -6,14 +6,15 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import Slider from "react-slick";
 import { handleSwipe } from "../utils/matchHandler";
-import MatchCelebrationModal from "../components/MatchCelebrationModal"; // ✅ Import match celebration modal
+import MatchCelebrationModal from "../components/MatchCelebrationModal"; // ✅
 
 const MatchesPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [index, setIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false); // ✅ State for celebration
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [matchedUser, setMatchedUser] = useState(null); // ✅
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -55,8 +56,8 @@ const MatchesPage = () => {
     setIndex(index + 1);
 
     if (direction === "right" && isMatch) {
+      setMatchedUser(currentProfile); // ✅ pass profile
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3500);
     }
   };
 
@@ -109,7 +110,14 @@ const MatchesPage = () => {
         )}
       </div>
 
-      {showCelebration && <MatchCelebrationModal />} 
+      {showCelebration && (
+        <MatchCelebrationModal
+          isOpen={showCelebration}
+          onClose={() => setShowCelebration(false)}
+          matchedUser={matchedUser}
+          currentUser={currentUser}
+        />
+      )}
 
       <Footer />
     </>

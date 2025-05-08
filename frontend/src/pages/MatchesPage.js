@@ -6,41 +6,43 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import Slider from "react-slick";
 import { handleSwipe } from "../utils/matchHandler";
+import MatchCelebrationModal from "../components/MatchCelebrationModal"; // ✅ Import match celebration modal
 
 const MatchesPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [index, setIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false); // ✅ State for celebration
 
   useEffect(() => {
     const fetchUsers = async () => {
-        const current = auth.currentUser;
-        if (!current) return;
-      
-        const currentDoc = await getDoc(doc(db, "users", current.uid));
-        const swipeDoc = await getDoc(doc(db, "swipes", current.uid));
-        const swipedUserIds = swipeDoc.exists() ? Object.keys(swipeDoc.data()) : [];
-      
-        const allDocs = await getDocs(collection(db, "users"));
-        const others = [];
-        allDocs.forEach((docSnap) => {
-          if (docSnap.id !== current.uid && !swipedUserIds.includes(docSnap.id)) {
-            others.push({ uid: docSnap.id, ...docSnap.data() });
-          }
-        });
-      
-        const filtered = others.filter((user) =>
-          user.interest1 === currentDoc.data().interest1 ||
-          user.interest2 === currentDoc.data().interest1 ||
-          user.interest1 === currentDoc.data().interest2 ||
-          user.interest2 === currentDoc.data().interest2
-        );
-      
-        setCurrentUser({ uid: current.uid, ...currentDoc.data() });
-        setFilteredUsers(filtered);
-      };
-      
+      const current = auth.currentUser;
+      if (!current) return;
+
+      const currentDoc = await getDoc(doc(db, "users", current.uid));
+      const swipeDoc = await getDoc(doc(db, "swipes", current.uid));
+      const swipedUserIds = swipeDoc.exists() ? Object.keys(swipeDoc.data()) : [];
+
+      const allDocs = await getDocs(collection(db, "users"));
+      const others = [];
+      allDocs.forEach((docSnap) => {
+        if (docSnap.id !== current.uid && !swipedUserIds.includes(docSnap.id)) {
+          others.push({ uid: docSnap.id, ...docSnap.data() });
+        }
+      });
+
+      const filtered = others.filter((user) =>
+        user.interest1 === currentDoc.data().interest1 ||
+        user.interest2 === currentDoc.data().interest1 ||
+        user.interest1 === currentDoc.data().interest2 ||
+        user.interest2 === currentDoc.data().interest2
+      );
+
+      setCurrentUser({ uid: current.uid, ...currentDoc.data() });
+      setFilteredUsers(filtered);
+    };
+
     fetchUsers();
   }, []);
 
@@ -48,9 +50,14 @@ const MatchesPage = () => {
 
   const swipe = async (direction) => {
     if (!currentUser || !currentProfile) return;
-    await handleSwipe(currentUser, currentProfile, direction);
+    const isMatch = await handleSwipe(currentUser, currentProfile, direction);
     setShowDetails(false);
     setIndex(index + 1);
+
+    if (direction === "right" && isMatch) {
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3500);
+    }
   };
 
   return (
@@ -101,6 +108,9 @@ const MatchesPage = () => {
           <p className="text-gray-600">No more matches found.</p>
         )}
       </div>
+
+      {showCelebration && <MatchCelebrationModal />} 
+
       <Footer />
     </>
   );

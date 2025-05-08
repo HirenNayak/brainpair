@@ -72,4 +72,19 @@ Then open your browser and go to:
 
 ## 📁 Folder Structure
 
-<pre> ```bash 📁 brainpair/ ├── frontend/ # React app source code │ ├── pages/ # App pages like ChatPage, DashboardPage, etc. │ ├── components/ # Reusable UI components │ ├── firebase/ # Firebase configuration and setup │ ├── App.js # Main route handler │ ├── package.json # All dependencies for the app │ └── README.md # This setup guide ├── .gitignore # Ignored files for Git ``` </pre>
+```bash
+📁 brainpair/
+├── frontend/
+│   └── src/
+│       ├── components/           # Reusable UI components (Button, Footer, Header, etc.)
+│       ├── pages/                # App pages like ChatPage, DashboardPage, etc.
+│       ├── firebase/             # Firebase configuration file
+│       ├── utils/                # Any utility/helper functions (if used)
+│       ├── App.js                # Main route handler
+│       ├── index.js              # Entry point
+│       ├── App.css, index.css    # Global styles
+│       └── logo.svg              # Branding/logo
+├── .gitignore                    # Ignored files for Git
+├── package.json                  # Project dependencies and scripts
+├── README.md                     # Project documentation
+```

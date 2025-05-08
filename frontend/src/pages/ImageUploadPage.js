@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Added
+import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase/firebase-config";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
@@ -12,7 +12,7 @@ const UPLOAD_PRESET = "brainpair_upload";
 const ImageUploadPage = () => {
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const navigate = useNavigate(); // ✅ Added
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -48,18 +48,13 @@ const ImageUploadPage = () => {
     const uploadedUrls = [];
 
     try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const firstName = userDoc.exists()
-        ? userDoc.data().firstName?.toLowerCase() || user.uid
-        : user.uid;
-
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", UPLOAD_PRESET);
-        formData.append("folder", `brainpair/users/${firstName}`);
-        formData.append("public_id", `profile${i + 1}`);
+        formData.append("folder", `brainpair/users/${user.uid}`);
+        formData.append("public_id", `profile_${user.uid}_${i + 1}`);
 
         const res = await fetch(CLOUDINARY_UPLOAD_URL, {
           method: "POST",
@@ -79,7 +74,7 @@ const ImageUploadPage = () => {
       });
 
       alert("Images uploaded successfully!");
-      navigate("/dashboard"); // ✅ Redirect to dashboard
+      navigate("/dashboard");
     } catch (err) {
       console.error("Error:", err);
       alert("Something went wrong: " + err.message);

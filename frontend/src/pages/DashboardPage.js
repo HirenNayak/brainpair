@@ -68,18 +68,7 @@ const DashboardPage = () => {
                 Connections
               </button>
             </li>
-            <li>
-              <button
-                className={`w-full text-left px-3 py-2 rounded-lg ${
-                  activeTab === "settings"
-                    ? "bg-indigo-100 text-indigo-700 font-semibold"
-                    : "hover:bg-indigo-50"
-                }`}
-                onClick={() => setActiveTab("settings")}
-              >
-                Profile Settings
-              </button>
-            </li>
+
             <li>
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg ${
@@ -92,6 +81,19 @@ const DashboardPage = () => {
                 Calendar
               </button>
             </li>
+            <li>
+              <button
+                className={`w-full text-left px-3 py-2 rounded-lg ${
+                  activeTab === "settings"
+                    ? "bg-indigo-100 text-indigo-700 font-semibold"
+                    : "hover:bg-indigo-50"
+                }`}
+                onClick={() => setActiveTab("settings")}
+              >
+                Profile Settings
+              </button>
+            </li>
+            
 
 
           </ul>
@@ -127,17 +129,17 @@ const DashboardPage = () => {
             </>
           )}
 
+          {activeTab === "calendar" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Calender</h1>
+              <CalendarPage />
+            </>
+          )}
+
           {activeTab === "settings" && (
             <>
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Edit Your Profile</h1>
               <UserProfileSettings />
-            </>
-          )}
-
-          {activeTab === "calendar" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Calendar</h1>
-              <CalendarPage />
             </>
           )}
         </div>

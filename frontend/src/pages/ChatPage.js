@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { db, rtdb, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
-import { toast } from "react-toastify"; // ✅ Toast added
+import { toast } from "react-toastify";
 
 const ChatPage = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const [matchList, setMatchList] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -105,6 +106,12 @@ const ChatPage = () => {
             {user.firstName}
           </div>
         ))}
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-4 px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded w-full"
+        >
+          ← Back to Dashboard
+        </button>
       </div>
 
       {/* Chat Area */}
@@ -112,6 +119,7 @@ const ChatPage = () => {
         <h2 className="text-2xl font-semibold text-indigo-700 mb-4">
           Chat with {selectedUser?.firstName || "someone"}
         </h2>
+
         <div className="bg-white rounded shadow p-4 h-[400px] overflow-y-auto mb-4">
           {messages.map((msg, i) => (
             <div

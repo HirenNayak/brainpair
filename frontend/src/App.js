@@ -19,7 +19,7 @@ import MessageListener from "./components/MessageListener"; // ✅ Import listen
 function App() {
   return (
     <Router>
-      <MessageListener /> {/* ✅ Global toast-based chat listener */}
+      <MessageListener /> {/*  Global toast-based chat listener */}
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<LandingPage />} />

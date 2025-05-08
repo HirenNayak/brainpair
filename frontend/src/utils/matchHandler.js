@@ -19,7 +19,10 @@ export const handleSwipe = async (currentUser, targetUser, direction) => {
           users: [currentUser.uid, targetUser.uid],
           timestamp: new Date(),
         });
+        return true; // ✅ Tell MatchesPage a match happened
       }
     }
   }
+
+  return false; // No match
 };

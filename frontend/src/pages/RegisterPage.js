@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; //  Firestore import
-import { auth, db } from "../firebase/firebase-config"; //  Firestore db
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase-config";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -21,7 +21,9 @@ const RegisterPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
+    if (e) e.preventDefault(); // Prevent form reload
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -30,7 +32,6 @@ const RegisterPage = () => {
       );
       const user = userCredential.user;
 
-      //  Save user details to Firestore
       await setDoc(doc(db, "users", user.uid), {
         firstName: form.firstName,
         lastName: form.lastName,
@@ -54,7 +55,7 @@ const RegisterPage = () => {
             Register for Brainpair
           </h2>
 
-          <div className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
             <input
               name="firstName"
               placeholder="First Name"
@@ -89,7 +90,7 @@ const RegisterPage = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
 
-            <Button onClick={handleRegister}>Register</Button>
+            <Button type="submit">Register</Button>
 
             <p className="text-center text-gray-600 text-sm mt-4">
               Already have an account?{" "}
@@ -97,7 +98,7 @@ const RegisterPage = () => {
                 Login here
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
 

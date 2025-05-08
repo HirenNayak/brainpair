@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import Slider from "react-slick";
 import { handleSwipe } from "../utils/matchHandler";
-import MatchCelebrationModal from "../components/MatchCelebrationModal"; // ✅
+import MatchCelebrationModal from "../components/MatchCelebrationModal";
 
 const MatchesPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -14,7 +14,7 @@ const MatchesPage = () => {
   const [index, setIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [matchedUser, setMatchedUser] = useState(null); // ✅
+  const [matchedUser, setMatchedUser] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -56,7 +56,7 @@ const MatchesPage = () => {
     setIndex(index + 1);
 
     if (direction === "right" && isMatch) {
-      setMatchedUser(currentProfile); // ✅ pass profile
+      setMatchedUser(currentProfile);
       setShowCelebration(true);
     }
   };
@@ -82,6 +82,9 @@ const MatchesPage = () => {
             <h2 className="text-xl font-bold text-indigo-700">
               {currentProfile.firstName} ({currentProfile.city})
             </h2>
+            <p className="text-sm text-gray-500 mt-2">
+              ⭐ {currentProfile.reviews?.length || 0} reviews
+            </p>
             <p className="text-gray-600 mt-1">
               Interest match: {
                 currentUser.interest1 === currentProfile.interest1 || currentUser.interest1 === currentProfile.interest2

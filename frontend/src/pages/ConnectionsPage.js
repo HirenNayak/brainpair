@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const ConnectionsPage = () => {
   const [connections, setConnections] = useState([]);
+  const [expandedUid, setExpandedUid] = useState(null); // ✅ Track which profile is expanded
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,10 +49,18 @@ const ConnectionsPage = () => {
     setConnections((prev) => prev.filter((conn) => conn.matchId !== matchId));
   };
 
+  const toggleExpand = (uid) => {
+    setExpandedUid((prev) => (prev === uid ? null : uid));
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6">
       {connections.map((user) => (
-        <div key={user.uid} className="bg-white shadow-lg rounded-lg p-6 text-center">
+        <div
+          key={user.uid}
+          className="bg-white shadow-lg rounded-lg p-6 text-center cursor-pointer"
+          onClick={() => toggleExpand(user.uid)}
+        >
           <Slider dots infinite speed={500} slidesToShow={1} slidesToScroll={1}>
             {user.images?.map((img, i) => (
               <img
@@ -68,16 +77,33 @@ const ConnectionsPage = () => {
           <p className="text-gray-600">
             {user.interest1}, {user.interest2}
           </p>
+
+          {expandedUid === user.uid && (
+            <div className="mt-4 bg-gray-50 p-4 rounded-lg text-left text-sm text-gray-700">
+              <p><strong>Age:</strong> {user.age}</p>
+              <p><strong>Gender:</strong> {user.gender}</p>
+              <p><strong>University:</strong> {user.university}</p>
+              <p><strong>Course:</strong> {user.course}</p>
+              <p><strong>Availability:</strong> {user.day} from {user.startTime} to {user.endTime}</p>
+            </div>
+          )}
+
           <div className="flex justify-center gap-4 mt-4">
             <Button
               className="bg-green-500 hover:bg-green-600"
-              onClick={() => navigate(`/chat/${user.uid}?matchId=${user.matchId}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/chat/${user.uid}?matchId=${user.matchId}`);
+              }}
             >
               Chat
             </Button>
             <Button
               className="bg-red-500 hover:bg-red-600"
-              onClick={() => handleUnmatch(user.matchId)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUnmatch(user.matchId);
+              }}
             >
               Unmatch
             </Button>

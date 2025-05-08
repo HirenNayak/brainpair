@@ -46,7 +46,7 @@ This will install:
 - react-slick  
 - slick-carousel  
 - firebase  
-- tailwindcss *(if used)*  
+- tailwindcss 
 - and more
 
 ### 4. ▶️ Run the App

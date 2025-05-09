@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
+
 
 function useTimer(initialTime, onTick) {
   const [time, setTime] = useState(initialTime);
@@ -206,7 +206,7 @@ const PomodoroTimerApp = () => {
           />
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

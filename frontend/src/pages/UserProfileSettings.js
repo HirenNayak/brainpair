@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebase-config";
 import { onAuthStateChanged, deleteUser } from "firebase/auth";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
+
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
@@ -198,7 +198,7 @@ const UserProfileSettings = () => {
 
         </div>
       </div>
-      <Footer />
+      
     </>
   );
 };

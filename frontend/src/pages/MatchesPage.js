@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import Button from "../components/Button";
 import Slider from "react-slick";
 import { handleSwipe } from "../utils/matchHandler";
@@ -163,7 +162,7 @@ const MatchesPage = () => {
         />
       )}
 
-      <Footer />
+      
     </>
   );
 };

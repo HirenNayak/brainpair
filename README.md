@@ -25,6 +25,7 @@ BrainPair is a React-based study partner matching application where students can
 
 Clone the project and navigate to the folder:
 
+```bash
 git clone https://github.com/HirenNayak/brainpair
 cd brainpair
 
@@ -33,11 +34,15 @@ cd brainpair
 
 All the code and configuration is inside the `frontend/` directory:
 
+cd frontend
+
 
 ### 3. 📦 Install Dependencies
 
 Install all necessary npm packages:
 
+
+npm install
 
 This will install:
 

@@ -1,0 +1,13 @@
+{
+  "name": "brainpair-root",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix frontend start",
+    "build": "npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "react-big-calendar": "^1.18.0",
+    "react-toastify": "^11.0.5"
+  }
+}

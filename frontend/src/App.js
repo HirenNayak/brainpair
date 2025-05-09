@@ -14,12 +14,13 @@ import ConnectionsPage from "./pages/ConnectionsPage";
 import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
+import CalendarPage from "./pages/CalendarPage";
 import MessageListener from "./components/MessageListener"; 
 
 function App() {
   return (
     <Router>
-      <MessageListener /> {/*  Global toast-based chat listener */}
+      <MessageListener />
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -33,6 +34,8 @@ function App() {
         <Route path="/connections" element={<ConnectionsPage />} />
         <Route path="/chat/:userId" element={<ChatPage />} />
         <Route path="/settings" element={<UserProfileSettings />} />
+        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="*" element={<div className="text-center mt-10 text-gray-600 text-lg">404 – Page Not Found</div>} />
       </Routes>
     </Router>
   );

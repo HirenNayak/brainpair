@@ -178,6 +178,11 @@ const UserProfileSettings = () => {
         type="text"
         value={confirmText}
         onChange={(e) => setConfirmText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && confirmText === "confirm") {
+            handleDelete();
+          }
+        }}
         className="border px-3 py-1 rounded w-40 mb-3"
       />
       <br />

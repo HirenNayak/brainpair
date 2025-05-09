@@ -25,7 +25,7 @@ BrainPair is a React-based study partner matching application where students can
 
 Clone the project and navigate to the folder:
 
-```bash
+
 git clone https://github.com/HirenNayak/brainpair
 cd brainpair
 

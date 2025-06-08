@@ -3,7 +3,9 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase } from "firebase/database"; 
+import { getDatabase } from "firebase/database";
+import { Timestamp } from "firebase/firestore";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBHO86bncRep1c835i9bfu3qOZ0SuxoU-g",
   authDomain: "brainpair.firebaseapp.com",
@@ -22,3 +24,4 @@ export const db = getFirestore(app);
 export const rtdb = getDatabase(app); 
 export const storage = getStorage(app);
 export const analytics = getAnalytics(app);
+export const firebaseTimestamp = Timestamp(app);

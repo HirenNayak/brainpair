@@ -12,6 +12,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { ref, push } from "firebase/database";
+import { toast } from "react-toastify";
 
 const GroupsPage = () => {
   const [groupName, setGroupName] = useState("");
@@ -56,10 +57,12 @@ const GroupsPage = () => {
       createdBy: currentUser.uid,
       members: [currentUser.uid],
       createdAt: new Date(),
+      pendingRequests: [],
     });
     setGroupName("");
     setDescription("");
     fetchUserGroups();
+    toast.success("Group created.");
   };
 
   const handleToggleGroup = (groupId) => {
@@ -69,7 +72,7 @@ const GroupsPage = () => {
   const handleChangeName = async (groupId, group) => {
     if (!newName.trim()) return;
     if (group.createdBy !== currentUser.uid) {
-      alert("Only the group creator can change the name.");
+      toast.warn("Only the group creator can change the name.");
       return;
     }
     await updateDoc(doc(db, "groups", groupId), {
@@ -77,33 +80,59 @@ const GroupsPage = () => {
     });
     setNewName("");
     fetchUserGroups();
+    toast.success("Group name updated.");
   };
 
   const handleAddUser = async (groupId, group) => {
     const usersSnapshot = await getDocs(collection(db, "users"));
     const userDoc = usersSnapshot.docs.find((doc) => doc.data().email === emailToAdd);
-    if (!userDoc) return alert("User not found");
+    if (!userDoc) return toast.error("User not found.");
 
     const userId = userDoc.id;
+    if (group.members.includes(userId)) {
+      toast.warn("This user is already a member.");
+      return;
+    }
+
+    const senderDoc = await getDoc(doc(db, "users", currentUser.uid));
+    const senderName = senderDoc.exists() ? senderDoc.data().firstName : "Someone";
 
     if (group.createdBy === currentUser.uid) {
       await updateDoc(doc(db, "groups", groupId), {
         members: arrayUnion(userId),
       });
-      alert("User added successfully!");
+      toast.success("User added.");
     } else {
-      const senderDoc = await getDoc(doc(db, "users", currentUser.uid));
-      const senderName = senderDoc.exists() ? senderDoc.data().firstName : "Someone";
+      const groupDoc = await getDoc(doc(db, "groups", groupId));
+      const groupData = groupDoc.data();
+      const existing = groupData.pendingRequests || [];
+
+      const alreadyRequested = existing.some(
+        (r) => r.email === emailToAdd && r.requestedBy === currentUser.uid
+      );
+      if (alreadyRequested) {
+        toast.warn("Already requested.");
+        return;
+      }
+
+      await updateDoc(doc(db, "groups", groupId), {
+        pendingRequests: arrayUnion({
+          requestedBy: currentUser.uid,
+          requestedByName: senderName,
+          email: emailToAdd,
+          timestamp: new Date().toISOString(),
+        }),
+      });
 
       const msgRef = ref(rtdb, `groupChats/${groupId}/messages`);
       await push(msgRef, {
         senderId: currentUser.uid,
-        senderName: senderName,
-        text: `${senderName} requested to add user: ${emailToAdd}`,
+        senderName,
+        text: `${senderName} requested to add ${emailToAdd}`,
         timestamp: Date.now(),
       });
 
-      alert("Request sent to group admin.");
+      toast.info("Request sent to admin.");
     }
 
     setEmailToAdd("");
@@ -115,6 +144,7 @@ const GroupsPage = () => {
       members: arrayRemove(userId),
     });
     fetchUserGroups();
+    toast.success("User removed.");
   };
 
   const handleLeaveGroup = async (groupId) => {
@@ -122,18 +152,20 @@ const GroupsPage = () => {
       members: arrayRemove(currentUser.uid),
     });
     fetchUserGroups();
+    toast.success("You left the group.");
   };
 
   const handleDeleteGroup = async (groupId) => {
     await deleteDoc(doc(db, "groups", groupId));
     fetchUserGroups();
+    toast.success("Group deleted.");
   };
 
   return (
     <div className="p-6 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-indigo-700 dark:text-yellow-300">Your Groups</h1>
 
-      {/* Create Group Section */}
+      {/* Create Group */}
       <div className="mb-8 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-2">Create New Group</h2>
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -217,7 +249,7 @@ const GroupsPage = () => {
                 </button>
               </div>
 
-              {/* Member List */}
+              {/* Members */}
               <div className="text-sm">
                 <p className="font-semibold mt-3 mb-1">Members:</p>
                 <ul className="list-disc list-inside space-y-1">
@@ -237,7 +269,61 @@ const GroupsPage = () => {
                 </ul>
               </div>
 
-              {/* Leave or Delete */}
+              {/* Pending Requests */}
+              {group.createdBy === currentUser.uid &&
+                group.pendingRequests?.length > 0 && (
+                  <div className="text-sm mt-4">
+                    <p className="font-semibold mb-1">Pending Requests:</p>
+                    <ul className="list-disc list-inside space-y-2">
+                      {group.pendingRequests.map((req, idx) => (
+                        <li key={idx} className="ml-4">
+                          {req.requestedByName} wants to add {req.email}
+                          <div className="inline ml-3 space-x-2">
+                            <button
+                              onClick={async () => {
+                                const usersSnapshot = await getDocs(collection(db, "users"));
+                                const userDoc = usersSnapshot.docs.find(
+                                  (doc) => doc.data().email === req.email
+                                );
+                                if (!userDoc) return toast.error("User not found.");
+
+                                const userId = userDoc.id;
+                                const updated = [...group.pendingRequests];
+                                updated.splice(idx, 1);
+
+                                await updateDoc(doc(db, "groups", group.id), {
+                                  members: arrayUnion(userId),
+                                  pendingRequests: updated,
+                                });
+                                toast.success(`${req.email} added to group.`);
+                                fetchUserGroups();
+                              }}
+                              className="text-green-600 hover:underline text-sm"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const updated = [...group.pendingRequests];
+                                updated.splice(idx, 1);
+                                await updateDoc(doc(db, "groups", group.id), {
+                                  pendingRequests: updated,
+                                });
+                                toast.info(`Request removed.`);
+                                fetchUserGroups();
+                              }}
+                              className="text-red-600 hover:underline text-sm"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+              {/* Delete / Leave */}
               <div className="pt-2">
                 {group.createdBy === currentUser.uid ? (
                   <button

@@ -87,9 +87,16 @@ const GroupChatPage = () => {
       <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 text-black dark:text-white h-full">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold">
-            {selectedGroup ? selectedGroup.groupName : "Select a group to chat"}
-          </h2>
+          {selectedGroup ? (
+            <>
+              <h2 className="text-lg font-semibold">{selectedGroup.groupName}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {selectedGroup.description || "No description available."}
+              </p>
+            </>
+          ) : (
+            <h2 className="text-lg font-semibold">Select a group to chat</h2>
+          )}
         </div>
 
         {/* Chat Content */}

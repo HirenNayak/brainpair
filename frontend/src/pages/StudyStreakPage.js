@@ -26,7 +26,6 @@ const StudyStreakPage = () => {
     "Your habits today shape your results tomorrow."
   ];
 
-  // Rotate daily based on day of month
   const todayIndex = new Date().getDate() % quotes.length;
   const dailyQuote = quotes[todayIndex];
 
@@ -46,22 +45,21 @@ const StudyStreakPage = () => {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto p-6 text-center">
+    <div className="max-w-xl mx-auto p-6 text-center bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
       {streak ? (
         <>
           <StreakCard current={streak.current} longest={streak.longest} />
           <CalendarView dates={streak.dates} current={streak.current} />
 
-          {/* 💬 Today’s Quote */}
-          <div className="mt-6 bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-yellow-800 mb-1">
+          <div className="mt-6 bg-yellow-100 dark:bg-yellow-300/20 border-l-4 border-yellow-400 dark:border-yellow-500 p-4 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
               💬 Today’s Quote
             </h3>
-            <p className="italic text-gray-700">“{dailyQuote}”</p>
+            <p className="italic text-gray-700 dark:text-gray-200">“{dailyQuote}”</p>
           </div>
         </>
       ) : (
-        <p className="text-center">Loading...</p>
+        <p className="text-center text-gray-700 dark:text-gray-300">Loading...</p>
       )}
     </div>
   );

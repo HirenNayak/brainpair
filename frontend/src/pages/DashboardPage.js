@@ -7,9 +7,11 @@ import ConnectionsPage from "./ConnectionsPage";
 import ChatPage from "./ChatPage";
 import UserProfileSettings from "./UserProfileSettings"; 
 import CalendarPage from "./CalendarPage";
+import useStudyStreak from "../utils/userStudyStreak";
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
+  const {studyStreak, lastStudyDate, loading, message, recordStudyActivity} = useStudyStreak();
 
   return (
     <>
@@ -93,9 +95,18 @@ const DashboardPage = () => {
                 Profile Settings
               </button>
             </li>
-            
-
-
+            <li>
+              <button
+                className={`w-full text-left px-3 py-2 rounded-lg ${
+                  activeTab === "studyStreak"
+                  ? "bg-indigo-100 text-indigo-700 font-semibold"
+                      : "hover:bg-indigo-50"
+                }`}
+                onClick={() => setActiveTab("studyStreak")}
+                >
+                studyStreak
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -141,6 +152,33 @@ const DashboardPage = () => {
               <h1 className="text-2xl font-bold text-indigo-700 mb-4">Edit Your Profile</h1>
               <UserProfileSettings />
             </>
+          )}
+          {activeTab === "studyStreak" && (
+              <>
+                <h1 className="text-2xl font-bold text-indigo-700 mb-4">Study Streak</h1>
+                {loading ? (
+                    <p>Loading streak data...</p>
+                ) : (
+                    <div className="space-y-3">
+                      <p className="text-lg">Current Streak: <strong>{studyStreak}</strong> day{studyStreak === 1 ? "" : "s"}</p>
+                      <p>
+                        Last Study Date:{" "}
+                        {lastStudyDate ? lastStudyDate.toDate().toLocaleDateString() : "None"}
+                      </p>
+                      {message && (
+                          <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
+                            {message}
+                          </div>
+                      )}
+                      <button
+                          onClick={recordStudyActivity}
+                          className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                      >
+                        Record Study Activity
+                      </button>
+                    </div>
+                )}
+              </>
           )}
         </div>
       </div>

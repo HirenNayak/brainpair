@@ -53,7 +53,7 @@ const useStudyStreak = () => {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data();
                 let currentStreak = userData.studyStreak || 0;
-                let storedLastStudyDate = userData.lastStudyDate || null; // This will be a Firebase Timestamp
+                let storedLastStudyDate = userData.lastStudyDate || null; // Firebase Timestamp
 
                 const nowTimestamp = firebaseTimestamp.now();
 
@@ -61,36 +61,80 @@ const useStudyStreak = () => {
                 if (storedLastStudyDate) {
                     if (isSameDay(nowTimestamp, storedLastStudyDate)) {
                         // Already studied today, streak is accurate
-                    } else if (isPreviosDay(nowTimestamp, storedLastStudyDate)) {
-                        // Studied yesterday, streak is accurate
+                    } else if (isPreviousDay(nowTimestamp, storedLastStudyDate)) {
+                        // Studied yesterday, streak continues
                     } else {
-                        // Streak broken - last study was neither today nor yesterday
+                        // Streak broken
                         if (currentStreak > 0) {
-                            setMessage('Your ${currentStreak}-day streak has ended :( ');
+                            setMessage(`Your ${currentStreak}-day streak has ended :(`);
                         }
-                        currentStreak = 0; // Reset for display
-                        storedLastStudyDate = null; // Visually indicate break
-                        await setDoc(userDocRef, {studyStreak: 0, lastStudyDate: null}, {merge: true}); // Update firebase to reset to persist immediately on view
+                        currentStreak = 0;
+                        storedLastStudyDate = null;
+
+                        await setDoc(userDocRef, {
+                            studyStreak: 0,
+                            lastStudyDate: null
+                        }, {merge: true});
                     }
                 } else {
                     // No previous study date, streak should be 0
                     currentStreak = 0;
                 }
 
-                setStudyStrak(currentStreak);
+                setStudyStreak(currentStreak);
                 setLastStudyDate(storedLastStudyDate);
             } else {
-                // New user or user document doesn't exist yet
-                setStudyStrak(0)
+                // New user or no record yet
+                setStudyStreak(0);
                 setLastStudyDate(null);
             }
         } catch (error) {
-            console.error("Error while getting study streak", error);
+            console.error("Error while getting study streak:", error);
             setMessage('Something went wrong with the streak.');
-            setStudyStrak(0);
+            setStudyStreak(0);
             setLastStudyDate(null);
         } finally {
             setLoading(false);
         }
+    };
+
+    const recordStudyActivity = async () => {
+        const user = auth.currentUser();
+        if (user) {
+            alert("Please login to record study activity");
+            return;
+        }
+
+        setLoading(true);
+        setMessage(''); //Clearing the previous messages
+        try {
+            const userDocRef = doc(db, 'userStudy', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            let userData = userDocSnap.exists() ? userDocSnap.data() : userDocSnap.data() : {};
+
+            let currentStreak = userData.studyStreak || 0;
+            let storedLastStudyDate = userData.lastStudyDate || null;
+
+            const nowTimestamp = firebaseTimestamp.now();
+
+            if (storedLastStudyDate === null) {
+                // First study activity ever
+                currentStreak = 1;
+            } else if (isSameDay(nowTimestamp, storedLastStudyDate)) {
+                // Already recorded todays streak
+                setMessage("Study streak already recorded for today.");
+                setLoading(false);
+                return currentStreak; //returns the current streak with no changes
+            } else if(isPreviosDay(nowTimestamp, storedLastStudyDate)) {
+                //Studied yesterday so continue the streak
+                currentStreak += 1;
+            } else {
+                // Streak was broken
+                if (currentStreak > 0) {
+                    setMessage(`Your ${currentStreak}-day streak has ended. Start a new one!`);
+                }
+                currentStreak = 1; // starting a new streak
+            }
+        }
     }
-};
+}

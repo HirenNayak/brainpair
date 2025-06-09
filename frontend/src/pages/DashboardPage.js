@@ -7,6 +7,7 @@ import ConnectionsPage from "./ConnectionsPage";
 import ChatPage from "./ChatPage";
 import UserProfileSettings from "./UserProfileSettings"; 
 import CalendarPage from "./CalendarPage";
+import StudyStreakPage from "./StudyStreakPage"; // ✅ NEW IMPORT
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -68,7 +69,6 @@ const DashboardPage = () => {
                 Connections
               </button>
             </li>
-
             <li>
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg ${
@@ -81,6 +81,21 @@ const DashboardPage = () => {
                 Calendar
               </button>
             </li>
+
+            {/* 🔥 Study Streak Button */}
+            <li>
+              <button
+                className={`w-full text-left px-3 py-2 rounded-lg ${
+                  activeTab === "studyStreak"
+                    ? "bg-indigo-100 text-indigo-700 font-semibold"
+                    : "hover:bg-indigo-50"
+                }`}
+                onClick={() => setActiveTab("studyStreak")}
+              >
+                Study Streak
+              </button>
+            </li>
+
             <li>
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg ${
@@ -93,9 +108,6 @@ const DashboardPage = () => {
                 Profile Settings
               </button>
             </li>
-            
-
-
           </ul>
         </div>
 
@@ -131,8 +143,15 @@ const DashboardPage = () => {
 
           {activeTab === "calendar" && (
             <>
-              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Calender</h1>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Calendar</h1>
               <CalendarPage />
+            </>
+          )}
+
+          {activeTab === "studyStreak" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 mb-4">Study Streak</h1>
+              <StudyStreakPage />
             </>
           )}
 

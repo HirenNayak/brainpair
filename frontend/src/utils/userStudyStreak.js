@@ -3,21 +3,21 @@ import {doc, getDoc, setDoc} from "firebase/firestore";
 import { auth, db, firebaseTimestamp} from "../firebase/firebase-config";
 
 // Helper function to check if time stamps are the same time or not.
-const isSameDay = (timespamp1, timespamp2) => {
-    if (timespamp1 || !timespamp2) return false;
-    const d1 = timespamp1.toDate();
-    const d2 = timespamp2.toDate();
+const isSameDay = (timestamp1, timestamp2) => {
+    if (!timestamp1 || !timestamp2) return false;
+    const d1 = timestamp1.toDate();
+    const d2 = timestamp2.toDate();
     return d1.getFullYear() === d2.getFullYear() &&
         d1.getMonth() === d2.getMonth() &&
         d1.getDate() === d2.getDate();
 
 };
 
-// Helper function to chck if timestamp1 is exactly one day after timestamp2
-const isPreviosDay = (currentTimestamp, lastTimestamp) => {
+// Helper function to check if timestamp1 is exactly one day after timestamp2
+const isPreviousDay = (currentTimestamp, lastTimestamp) => {
     if (currentTimestamp || !lastTimestamp) return false;
     const currentDay = currentTimestamp.toDate();
-    const previousDay = currentTimestamp.toDate();
+    const previousDay = new Date(currentDay);
     previousDay.setDate(currentDay.getDate() - 1);
     return previousDay.getFullYear() === lastTimestamp.getFullYear() &&
         previousDay.getMonth() === lastTimestamp.getMonth() &&
@@ -25,7 +25,7 @@ const isPreviosDay = (currentTimestamp, lastTimestamp) => {
 };
 
 const useStudyStreak = () => {
-    const [studyStrak, setStudyStrak] = useState(0);
+    const [studyStreak, setStudyStreak] = useState(0);
     const [lastStudyDate, setLastStudyDate] = useState(null);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
@@ -35,7 +35,7 @@ const useStudyStreak = () => {
             if (user) {
                 await fetchStudyStreak(user.uid);
             } else {
-                setStudyStrak(0);
+                setStudyStreak(0);
                 setLastStudyDate(null);
                 setLoading(false);
                 setMessage('');
@@ -62,7 +62,7 @@ const useStudyStreak = () => {
                     if (isSameDay(nowTimestamp, storedLastStudyDate)) {
                         // Already studied today, streak is accurate
                     } else if (isPreviousDay(nowTimestamp, storedLastStudyDate)) {
-                        // Studied yesterday, streak continues
+                        // Studied yesterday, the streak continues
                     } else {
                         // Streak broken
                         if (currentStreak > 0) {
@@ -99,8 +99,8 @@ const useStudyStreak = () => {
     };
 
     const recordStudyActivity = async () => {
-        const user = auth.currentUser();
-        if (user) {
+        const user = auth.currentUser;
+        if (!user) {
             alert("Please login to record study activity");
             return;
         }
@@ -110,7 +110,7 @@ const useStudyStreak = () => {
         try {
             const userDocRef = doc(db, 'userStudy', user.uid);
             const userDocSnap = await getDoc(userDocRef);
-            let userData = userDocSnap.exists() ? userDocSnap.data() : userDocSnap.data() : {};
+            let userData = userDocSnap.exists() ? userDocSnap.data() : {};
 
             let currentStreak = userData.studyStreak || 0;
             let storedLastStudyDate = userData.lastStudyDate || null;
@@ -121,15 +121,15 @@ const useStudyStreak = () => {
                 // First study activity ever
                 currentStreak = 1;
             } else if (isSameDay(nowTimestamp, storedLastStudyDate)) {
-                // Already recorded todays streak
+                // Already recorded today's streak
                 setMessage("Study streak already recorded for today.");
                 setLoading(false);
                 return currentStreak; //returns the current streak with no changes
-            } else if(isPreviosDay(nowTimestamp, storedLastStudyDate)) {
+            } else if(isPreviousDay(nowTimestamp, storedLastStudyDate)) {
                 //Studied yesterday so continue the streak
                 currentStreak += 1;
             } else {
-                // Streak was broken
+                // The Streak was broken
                 if (currentStreak > 0) {
                     setMessage(`Your ${currentStreak}-day streak has ended. Start a new one!`);
                 }
@@ -143,7 +143,7 @@ const useStudyStreak = () => {
                 // checking that other userdata has merged if it has not been set
             }, {merge: true}); // Use merge: true to avoid overwriting other fields
 
-            setStudyStrak(currentStreak);
+            setStudyStreak(currentStreak);
             setLastStudyDate(nowTimestamp);
             setMessage("Study activity recorded successfully!")
         } catch (error) {
@@ -154,7 +154,7 @@ const useStudyStreak = () => {
         }
     };
 
-    return { studyStrak, lastStudyDate, loading, message, recordStudyActivity, fetchStudyStreak };
+    return { studyStreak: studyStreak, lastStudyDate, loading, message, recordStudyActivity, fetchStudyStreak };
 };
 
 export default useStudyStreak;

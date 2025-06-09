@@ -36,8 +36,6 @@ function App() {
           <Route path="/connections" element={<ConnectionsPage />} />
           <Route path="/chat/:userId" element={<ChatPage />} />
           <Route path="/settings" element={<UserProfileSettings />} />
-
-          
           <Route path="/groups" element={<GroupsPage />} />
           <Route path="/group-chat/:groupId" element={<GroupChatPage />} />
         </Routes>

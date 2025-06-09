@@ -30,14 +30,14 @@ const MessageListener = () => {
       for (const { matchId, otherId } of matched) {
         const msgRef = ref(rtdb, `messages/${matchId}`);
 
-        // ✅ Step 1: Preload existing messages once
+        //  Step 1: Preload existing messages once
         const snapshot = await get(msgRef);
         const data = snapshot.val();
         if (data) {
           Object.keys(data).forEach((key) => initialKeys.current.add(key));
         }
 
-        // ✅ Step 2: Attach listener after preload
+        //  Step 2: Attach listener after preload
         const unsub = onChildAdded(msgRef, async (snapshot) => {
           const msg = snapshot.val();
           const messageId = snapshot.key;

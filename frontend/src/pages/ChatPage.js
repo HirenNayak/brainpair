@@ -1,3 +1,4 @@
+// Same imports...
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db, rtdb, auth } from "../firebase/firebase-config";
@@ -30,7 +31,6 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       if (!currentUser) return;
-
       const snapshot = await getDocs(collection(db, "matches"));
       const userMatches = [];
 
@@ -55,7 +55,6 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!currentUser || !selectedUser) return;
-
     const matchId = getMatchId(currentUser.uid, selectedUser.uid);
     const msgRef = ref(rtdb, `messages/${matchId}`);
 
@@ -99,8 +98,8 @@ const ChatPage = () => {
           method: "POST",
           body: formData,
         });
-        const data = await res.json();
 
+        const data = await res.json();
         if (data.secure_url) {
           await push(msgRef, {
             sender: currentUser.uid,
@@ -130,6 +129,7 @@ const ChatPage = () => {
 
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
+      {/* Sidebar */}
       <div className="w-64 bg-white dark:bg-gray-800 shadow-lg p-4">
         <h2 className="font-bold text-lg text-indigo-700 dark:text-indigo-300 mb-4">Connections</h2>
         {matchList.map((user) => (
@@ -153,45 +153,43 @@ const ChatPage = () => {
         </button>
       </div>
 
+      {/* Chat area */}
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-semibold text-indigo-700 dark:text-indigo-300 mb-4">
           Chat with {selectedUser?.firstName || "someone"}
         </h2>
 
         <div className="bg-white dark:bg-gray-800 rounded shadow p-4 h-[400px] overflow-y-auto mb-4">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`mb-2 ${
-                msg.sender === currentUser?.uid ? "text-right" : "text-left"
-              }`}
-            >
-              {msg.fileUrl ? (
-                msg.fileType?.startsWith("video") ? (
-                  <video controls className="max-w-xs rounded">
-                    <source src={msg.fileUrl} type={msg.fileType} />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : msg.fileType?.startsWith("image") ? (
-                  <img src={msg.fileUrl} alt="uploaded" className="max-w-xs rounded shadow" />
-                ) : (
-                  <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                    View/Download File
-                  </a>
-                )
-              ) : (
-                <span
-                  className={`inline-block px-3 py-2 rounded-lg ${
-                    msg.sender === currentUser?.uid
+          {messages.map((msg, i) => {
+            const isCurrentUser = msg.sender === currentUser?.uid;
+            return (
+              <div key={i} className={`mb-2 ${isCurrentUser ? "text-right" : "text-left"}`}>
+                <div
+                  className={`inline-block px-3 py-2 rounded-lg max-w-xs ${
+                    isCurrentUser
                       ? "bg-indigo-200 dark:bg-indigo-600 text-black dark:text-white"
                       : "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
                   }`}
                 >
-                  {msg.text}
-                </span>
-              )}
-            </div>
-          ))}
+                  {msg.fileUrl ? (
+                    msg.fileType?.startsWith("video") ? (
+                      <video controls className="rounded w-full">
+                        <source src={msg.fileUrl} type={msg.fileType} />
+                      </video>
+                    ) : msg.fileType?.startsWith("image") ? (
+                      <img src={msg.fileUrl} alt="uploaded" className="rounded w-full" />
+                    ) : (
+                      <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                        View/Download File
+                      </a>
+                    )
+                  ) : (
+                    msg.text
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex flex-col gap-2 mb-2">
@@ -216,7 +214,15 @@ const ChatPage = () => {
                 onChange={(e) => setSelectedFile(e.target.files[0])}
               />
             </label>
-            {selectedFile && <span className="text-sm">{selectedFile.name}</span>}
+
+            {selectedFile && (
+              <div className="flex items-center gap-2 text-sm">
+                <span>{selectedFile.name}</span>
+                <button onClick={() => setSelectedFile(null)} className="text-red-500 hover:text-red-700 text-xs">
+                  ❌
+                </button>
+              </div>
+            )}
 
             <button
               onClick={sendMessage}

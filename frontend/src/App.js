@@ -15,6 +15,8 @@ import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
 import MessageListener from "./components/MessageListener";
+import GroupsPage from "./pages/GroupsPage";
+import GroupChatPage from "./pages/GroupChatPage";
 
 function App() {
   return (
@@ -34,6 +36,10 @@ function App() {
           <Route path="/connections" element={<ConnectionsPage />} />
           <Route path="/chat/:userId" element={<ChatPage />} />
           <Route path="/settings" element={<UserProfileSettings />} />
+
+          
+          <Route path="/groups" element={<GroupsPage />} />
+          <Route path="/group-chat/:groupId" element={<GroupChatPage />} />
         </Routes>
       </Router>
     </div>

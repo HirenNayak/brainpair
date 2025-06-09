@@ -16,6 +16,7 @@ const ChatPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [hasShownReviewPrompt, setHasShownReviewPrompt] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const getMatchId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
@@ -73,62 +74,57 @@ const ChatPage = () => {
   }, [selectedUser, currentUser, hasShownReviewPrompt]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) {
-      toast.warning("Please enter a message.");
+    if (!newMessage.trim() && !selectedFile) {
+      toast.warning("Please enter a message or select a file.");
       return;
     }
 
-    try {
-      const matchId = getMatchId(currentUser.uid, selectedUser.uid);
-      const msgRef = ref(rtdb, `messages/${matchId}`);
+    const matchId = getMatchId(currentUser.uid, selectedUser.uid);
+    const msgRef = ref(rtdb, `messages/${matchId}`);
 
-      await push(msgRef, {
-        sender: currentUser.uid,
-        text: newMessage,
-        timestamp: new Date().toISOString(),
-      });
+    try {
+      if (selectedFile) {
+        if (selectedFile.size > 10 * 1024 * 1024) {
+          toast.error("File size should be less than 10MB.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("upload_preset", "brainpair_upload");
+        formData.append("folder", `brainpair/chat-files/${currentUser.uid}`);
+        formData.append("public_id", `chat_${currentUser.uid}_${Date.now()}`);
+
+        const res = await fetch("https://api.cloudinary.com/v1_1/dvgkrvvsv/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (data.secure_url) {
+          await push(msgRef, {
+            sender: currentUser.uid,
+            fileUrl: data.secure_url,
+            fileType: selectedFile.type,
+            timestamp: new Date().toISOString(),
+          });
+          setSelectedFile(null);
+        }
+      }
+
+      if (newMessage.trim()) {
+        await push(msgRef, {
+          sender: currentUser.uid,
+          text: newMessage,
+          timestamp: new Date().toISOString(),
+        });
+        setNewMessage("");
+      }
 
       toast.success("Message sent!");
-      setNewMessage("");
     } catch (err) {
       console.error(err);
       toast.error("Failed to send message.");
-    }
-  };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !currentUser || !selectedUser) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "brainpair_upload");
-    formData.append("folder", `brainpair/chat-files/${currentUser.uid}`);
-    formData.append("public_id", `chat_${currentUser.uid}_${Date.now()}`);
-
-    try {
-      const res = await fetch("https://api.cloudinary.com/v1_1/dvgkrvvsv/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (data.secure_url) {
-        const matchId = getMatchId(currentUser.uid, selectedUser.uid);
-        const msgRef = ref(rtdb, `messages/${matchId}`);
-
-        await push(msgRef, {
-          sender: currentUser.uid,
-          fileUrl: data.secure_url,
-          fileType: file.type,
-          timestamp: new Date().toISOString(),
-        });
-
-        toast.success("File sent!");
-      }
-    } catch (err) {
-      console.error("Upload failed:", err);
-      toast.error("File upload failed.");
     }
   };
 
@@ -176,6 +172,8 @@ const ChatPage = () => {
                     <source src={msg.fileUrl} type={msg.fileType} />
                     Your browser does not support the video tag.
                   </video>
+                ) : msg.fileType?.startsWith("image") ? (
+                  <img src={msg.fileUrl} alt="uploaded" className="max-w-xs rounded shadow" />
                 ) : (
                   <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
                     View/Download File
@@ -196,10 +194,10 @@ const ChatPage = () => {
           ))}
         </div>
 
-        <div className="flex gap-2 mb-2">
+        <div className="flex flex-col gap-2 mb-2">
           <input
             type="text"
-            className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-4 py-2"
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-4 py-2"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
@@ -207,13 +205,26 @@ const ChatPage = () => {
             }}
             placeholder="Type your message..."
           />
-          <button
-            onClick={sendMessage}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded"
-          >
-            Send
-          </button>
-          <input type="file" accept="video/*,.pdf,.doc,.docx" onChange={handleFileUpload} className="text-sm" />
+
+          <div className="flex items-center gap-3">
+            <label className="cursor-pointer px-4 py-2 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+              📎 Select File
+              <input
+                type="file"
+                accept="image/*,video/*,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => setSelectedFile(e.target.files[0])}
+              />
+            </label>
+            {selectedFile && <span className="text-sm">{selectedFile.name}</span>}
+
+            <button
+              onClick={sendMessage}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded"
+            >
+              Send
+            </button>
+          </div>
         </div>
 
         {messages.length >= 10 && (

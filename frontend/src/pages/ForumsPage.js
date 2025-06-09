@@ -24,6 +24,7 @@ const ForumsPage = () => {
   const [newPost, setNewPost] = useState("");
   const [replyInputs, setReplyInputs] = useState({});
   const [replyBoxes, setReplyBoxes] = useState({});
+  const [expandedReplies, setExpandedReplies] = useState({});
   const [replies, setReplies] = useState({});
 
   const fetchForums = async () => {
@@ -108,8 +109,18 @@ const ForumsPage = () => {
     setReplies((prev) => ({ ...prev, [postId]: repliesList }));
   };
 
+  const handleDeleteReply = async (postId, replyId) => {
+    try {
+      await deleteDoc(doc(db, `posts/${postId}/replies`, replyId));
+      toast.success("Reply deleted");
+      fetchReplies(postId);
+    } catch (err) {
+      toast.error("Failed to delete reply");
+    }
+  };
+
   const enterForum = async (forum) => {
-    setSelectedForum(forum);
+    setSelectedForum({ ...forum, isAdmin: forum.createdBy === auth.currentUser?.uid });
     const q = query(collection(db, "posts"), where("forumId", "==", forum.id));
     const snap = await getDocs(q);
     const postList = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -169,6 +180,13 @@ const ForumsPage = () => {
 
   const toggleReplyBox = (postId) => {
     setReplyBoxes((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const toggleReplies = (postId) => {
+    setExpandedReplies((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
   };
 
   return (
@@ -288,12 +306,25 @@ const ForumsPage = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Posted by {post.displayName || "Anonymous"}
                 </p>
+
                 <button
                   onClick={() => toggleReplyBox(post.id)}
-                  className="mt-2 text-indigo-600 text-sm hover:underline"
+                  className="mt-2 text-indigo-600 text-sm hover:underline mr-4"
                 >
                   💬 Reply
                 </button>
+
+                {replies[post.id] && replies[post.id].length > 0 && (
+                  <button
+                    onClick={() => toggleReplies(post.id)}
+                    className="mt-2 text-indigo-600 text-sm hover:underline"
+                  >
+                    {expandedReplies[post.id]
+                      ? "Hide replies"
+                      : `Show ${replies[post.id].length} replies`}
+                  </button>
+                )}
+
                 {replyBoxes[post.id] && (
                   <div className="mt-3">
                     <input
@@ -301,7 +332,10 @@ const ForumsPage = () => {
                       placeholder="Write a reply..."
                       value={replyInputs[post.id] || ""}
                       onChange={(e) =>
-                        setReplyInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
+                        setReplyInputs((prev) => ({
+                          ...prev,
+                          [post.id]: e.target.value,
+                        }))
                       }
                       className="w-full px-3 py-2 mt-1 border rounded-lg dark:bg-gray-700 dark:text-white"
                     />
@@ -313,15 +347,26 @@ const ForumsPage = () => {
                     </button>
                   </div>
                 )}
-                {replies[post.id] && replies[post.id].length > 0 && (
-                  <div className="mt-4 space-y-2 border-l-4 border-indigo-200 pl-4">
-                    {replies[post.id].map((r) => (
-                      <div key={r.id} className="text-sm text-gray-700 dark:text-gray-300">
-                        <span className="font-semibold">{r.displayName}:</span> {r.content}
-                      </div>
-                    ))}
-                  </div>
-                )}
+
+                {expandedReplies[post.id] &&
+                  replies[post.id] &&
+                  replies[post.id].length > 0 && (
+                    <div className="mt-4 space-y-2 border-l-4 border-indigo-200 pl-4">
+                      {replies[post.id].map((r) => (
+                        <div key={r.id} className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold">{r.displayName}:</span> {r.content}
+                          {(r.createdBy === auth.currentUser?.uid || selectedForum.isAdmin) && (
+                            <button
+                              onClick={() => handleDeleteReply(post.id, r.id)}
+                              className="ml-2 text-red-500 text-xs hover:underline"
+                            >
+                              🗑️ Delete
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </div>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { auth, db, rtdb } from "../firebase/firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
 
 const GroupChatPage = () => {
@@ -9,7 +9,9 @@ const GroupChatPage = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const [myName, setMyName] = useState("Me");
 
+  // Fetch user groups
   useEffect(() => {
     const fetchUserGroups = async () => {
       const snapshot = await getDocs(collection(db, "groups"));
@@ -19,9 +21,21 @@ const GroupChatPage = () => {
       setGroups(userGroups);
     };
 
-    fetchUserGroups();
+    const fetchMyName = async () => {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snapshot = await getDoc(userRef);
+      if (snapshot.exists()) {
+        setMyName(snapshot.data().firstName || "Me");
+      }
+    };
+
+    if (currentUser) {
+      fetchUserGroups();
+      fetchMyName();
+    }
   }, [currentUser]);
 
+  // Listen for messages
   useEffect(() => {
     if (!selectedGroup) return;
 
@@ -39,7 +53,7 @@ const GroupChatPage = () => {
     if (!text.trim() || !selectedGroup) return;
     await push(ref(rtdb, `groupChats/${selectedGroup.id}/messages`), {
       senderId: currentUser.uid,
-      senderName: currentUser.displayName || "Anonymous",
+      senderName: myName,
       text,
       timestamp: Date.now(),
     });
@@ -85,14 +99,28 @@ const GroupChatPage = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {selectedGroup ? (
               messages.length === 0 ? (
                 <p className="text-sm text-gray-400">No messages yet.</p>
               ) : (
                 messages.map((msg, i) => (
-                  <div key={i} className="mb-2">
-                    <strong>{msg.senderName || msg.senderId}:</strong> {msg.text}
+                  <div
+                    key={i}
+                    className={`flex ${
+                      msg.senderId === currentUser.uid ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                        msg.senderId === currentUser.uid
+                          ? "bg-indigo-500 text-white"
+                          : "bg-gray-200 dark:bg-gray-700"
+                      }`}
+                    >
+                      <strong className="block mb-1">{msg.senderName || "Unknown"}</strong>
+                      <span>{msg.text}</span>
+                    </div>
                   </div>
                 ))
               )

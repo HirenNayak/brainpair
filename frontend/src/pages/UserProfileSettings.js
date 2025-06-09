@@ -3,19 +3,18 @@ import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebase-config";
 import { onAuthStateChanged, deleteUser } from "firebase/auth";
 import Header from "../components/Header";
-
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 
 const SelectField = ({ label, name, value, onChange, options }) => (
   <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
     <select
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-gray-600"
     >
       <option value="">-- Select --</option>
       {options.map((opt) => (
@@ -109,13 +108,13 @@ const UserProfileSettings = () => {
     try {
       const user = auth.currentUser;
       if (!user) return alert("No user found.");
-  
+
       const email = prompt("Please re-enter your email:");
       const password = prompt("Please enter your password:");
-  
+
       const credential = EmailAuthProvider.credential(email, password);
       await reauthenticateWithCredential(user, credential);
-  
+
       await deleteDoc(doc(db, "users", user.uid));
       await deleteUser(user);
       alert("Account deleted.");
@@ -130,9 +129,11 @@ const UserProfileSettings = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-indigo-50 flex items-center justify-center py-12 px-6">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Edit Your Profile</h2>
+      <div className="min-h-screen bg-indigo-50 dark:bg-gray-900 flex items-center justify-center py-12 px-6">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-2xl">
+          <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-300 mb-6">
+            Edit Your Profile
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField label="University" name="university" value={form.university} onChange={handleChange} options={universities} />
@@ -146,15 +147,25 @@ const UserProfileSettings = () => {
             <SelectField label="Available Day" name="day" value={form.day} onChange={handleChange} options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]} />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-              <input type="time" name="startTime" value={form.startTime} onChange={handleChange}
-                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Time</label>
+              <input
+                type="time"
+                name="startTime"
+                value={form.startTime}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white dark:bg-gray-700 text-black dark:text-white dark:border-gray-600"
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-              <input type="time" name="endTime" value={form.endTime} onChange={handleChange}
-                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Time</label>
+              <input
+                type="time"
+                name="endTime"
+                value={form.endTime}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white dark:bg-gray-700 text-black dark:text-white dark:border-gray-600"
+              />
             </div>
           </div>
 
@@ -163,42 +174,40 @@ const UserProfileSettings = () => {
           </div>
 
           {/* 🔴 Delete Account Section */}
-<div className="mt-10 border-t pt-6 flex flex-col items-center">
-  {!showDeleteConfirm ? (
-    <button
-      onClick={() => setShowDeleteConfirm(true)}
-      className="text-red-600 border border-red-600 px-4 py-2 rounded hover:bg-red-50"
-    >
-      Delete My Account
-    </button>
-  ) : (
-    <div className="text-center">
-      <p className="text-sm text-gray-700 mb-2">Type <strong>confirm</strong> to delete your account:</p>
-      <input
-        type="text"
-        value={confirmText}
-        onChange={(e) => setConfirmText(e.target.value)}
-        className="border px-3 py-1 rounded w-40 mb-3"
-      />
-      <br />
-      <button
-        onClick={handleDelete}
-        disabled={confirmText !== "confirm"}
-        className={`px-4 py-2 rounded text-white ${
-          confirmText === "confirm"
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
-      >
-        Confirm Delete
-      </button>
-    </div>
-  )}
-</div>
-
+          <div className="mt-10 border-t dark:border-gray-600 pt-6 flex flex-col items-center">
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-red-600 border border-red-600 px-4 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900"
+              >
+                Delete My Account
+              </button>
+            ) : (
+              <div className="text-center">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">Type <strong>confirm</strong> to delete your account:</p>
+                <input
+                  type="text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  className="border px-3 py-1 rounded w-40 mb-3 bg-white dark:bg-gray-700 text-black dark:text-white dark:border-gray-600"
+                />
+                <br />
+                <button
+                  onClick={handleDelete}
+                  disabled={confirmText !== "confirm"}
+                  className={`px-4 py-2 rounded text-white ${
+                    confirmText === "confirm"
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      
     </>
   );
 };

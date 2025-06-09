@@ -16,6 +16,7 @@ import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
 import CalendarPage from "./pages/CalendarPage";
 import MessageListener from "./components/MessageListener"; 
+import StudyStreakPage from "./pages/StudyStreakPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="/chat/:userId" element={<ChatPage />} />
         <Route path="/settings" element={<UserProfileSettings />} />
         <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/streak" element={<StudyStreakPage />} />
         <Route path="*" element={<div className="text-center mt-10 text-gray-600 text-lg">404 – Page Not Found</div>} />
       </Routes>
     </Router>

@@ -31,7 +31,7 @@ const ImageUploadPage = () => {
   };
 
   const handleUpload = async (e) => {
-    if (e) e.preventDefault(); // prevent form refresh
+    if (e) e.preventDefault();
 
     if (images.length < 2) {
       alert("Please select at least 2 images.");
@@ -87,17 +87,17 @@ const ImageUploadPage = () => {
     <>
       <Header />
 
-      <div className="min-h-screen bg-indigo-50 flex items-center justify-center py-12 px-6">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+      <div className="min-h-screen bg-indigo-50 dark:bg-gray-900 flex items-center justify-center py-12 px-6">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-2xl">
+          <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-300 mb-6">
             Upload Profile Pictures
           </h2>
-          <p className="text-center text-gray-600 mb-6">
+          <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
             Select 2–4 clear images that best represent you
           </p>
 
           <form onSubmit={handleUpload}>
-            <label className="block w-full p-4 border-2 border-dashed border-indigo-300 text-center rounded-lg cursor-pointer hover:bg-indigo-100 transition mb-6">
+            <label className="block w-full p-4 border-2 border-dashed border-indigo-300 text-center rounded-lg cursor-pointer hover:bg-indigo-100 dark:hover:bg-gray-700 transition mb-6">
               <input
                 type="file"
                 accept="image/*"
@@ -108,7 +108,9 @@ const ImageUploadPage = () => {
               <span className="text-sm text-indigo-500 font-medium">
                 Click to select or drag images here
               </span>
-              <p className="text-xs text-gray-500 mt-1">Maximum 4 images allowed</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Maximum 4 images allowed
+              </p>
             </label>
 
             {images.length > 0 && (
@@ -123,7 +125,7 @@ const ImageUploadPage = () => {
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 bg-white text-red-500 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-100"
+                      className="absolute top-1 right-1 bg-white dark:bg-gray-700 text-red-500 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-100 dark:hover:bg-red-800"
                       title="Remove"
                     >
                       ×

@@ -135,6 +135,26 @@ const useStudyStreak = () => {
                 }
                 currentStreak = 1; // starting a new streak
             }
+
+            // updating firebase
+            await setDoc(userDocRef, {
+                studyStreak: currentStreak,
+                lastStudyDate: nowTimestamp,
+                // checking that other userdata has merged if it has not been set
+            }, {merge: true}); // Use merge: true to avoid overwriting other fields
+
+            setStudyStrak(currentStreak);
+            setLastStudyDate(nowTimestamp);
+            setMessage("Study activity recorded successfully!")
+        } catch (error) {
+            console.error("Error while recording study streak:", error);
+            setMessage("Failed to record study streak");
+        } finally {
+            setLoading(false);
         }
-    }
-}
+    };
+
+    return { studyStrak, lastStudyDate, loading, message, recordStudyActivity, fetchStudyStreak };
+};
+
+export default useStudyStreak;

@@ -14,27 +14,29 @@ import ConnectionsPage from "./pages/ConnectionsPage";
 import ChatPage from './pages/ChatPage';
 import Pomodoro from './pages/PomodoroTimerApp';
 import UserProfileSettings from "./pages/UserProfileSettings";
-import MessageListener from "./components/MessageListener"; 
+import MessageListener from "./components/MessageListener";
 
 function App() {
   return (
-    <Router>
-      <MessageListener /> {/*  Global toast-based chat listener */}
-      <ToastContainer position="top-right" autoClose={3000} />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/setup" element={<ProfileSetupPage />} />
-        <Route path="/upload" element={<ImageUploadPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/pomodoro" element={<Pomodoro />} />
-        <Route path="/matches" element={<MatchesPage />} />
-        <Route path="/connections" element={<ConnectionsPage />} />
-        <Route path="/chat/:userId" element={<ChatPage />} />
-        <Route path="/settings" element={<UserProfileSettings />} />
-      </Routes>
-    </Router>
+    <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
+      <Router>
+        <MessageListener />
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/setup" element={<ProfileSetupPage />} />
+          <Route path="/upload" element={<ImageUploadPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/pomodoro" element={<Pomodoro />} />
+          <Route path="/matches" element={<MatchesPage />} />
+          <Route path="/connections" element={<ConnectionsPage />} />
+          <Route path="/chat/:userId" element={<ChatPage />} />
+          <Route path="/settings" element={<UserProfileSettings />} />
+        </Routes>
+      </Router>
+    </div>
   );
 }
 

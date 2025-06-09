@@ -21,6 +21,17 @@ const ChatPage = () => {
 
   const getMatchId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
+  const getUploadUrl = (file) => {
+    if (file.type.startsWith("image")) {
+      return "https://api.cloudinary.com/v1_1/dvgkrvvsv/image/upload";
+    } else if (file.type.startsWith("video")) {
+      return "https://api.cloudinary.com/v1_1/dvgkrvvsv/video/upload";
+    } else {
+      toast.error("❌ Only image and video files are allowed.");
+      return null;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) setCurrentUser(user);
@@ -88,13 +99,8 @@ const ChatPage = () => {
           return;
         }
 
-        const resourceType = selectedFile.type.startsWith("image")
-          ? "image"
-          : selectedFile.type.startsWith("video")
-          ? "video"
-          : "raw";
-
-        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/dvgkrvvsv/${resourceType}/upload`;
+        const CLOUDINARY_UPLOAD_URL = getUploadUrl(selectedFile);
+        if (!CLOUDINARY_UPLOAD_URL) return;
 
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -222,7 +228,7 @@ const ChatPage = () => {
               📎 Select File
               <input
                 type="file"
-                accept="image/*,video/*,.pdf,.doc,.docx"
+                accept="image/*,video/*"
                 className="hidden"
                 onChange={(e) => setSelectedFile(e.target.files[0])}
               />

@@ -1,4 +1,4 @@
-// Updated Calendar.js with editable and deletable sessions
+// Calendar.js with automatic weekday detection from startTime
 import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
@@ -14,11 +14,14 @@ const weekdays = [
   "Sunday",
 ];
 
+const getWeekday = (datetimeStr) => {
+  return new Date(datetimeStr).toLocaleDateString(undefined, { weekday: 'long' });
+};
+
 const Calendar = () => {
   const [matchedUsers, setMatchedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [sessionDay, setSessionDay] = useState("");
   const [sessionTitle, setSessionTitle] = useState("");
   const [sessionDesc, setSessionDesc] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -71,9 +74,11 @@ const Calendar = () => {
   };
 
   const saveSession = () => {
-    if (sessionDay && sessionTitle && startTime && endTime) {
+    if (sessionTitle && startTime && endTime) {
+      const autoDay = getWeekday(startTime);
+
       const newSession = {
-        day: sessionDay,
+        day: autoDay,
         title: sessionTitle,
         description: sessionDesc,
         start: startTime,
@@ -83,15 +88,14 @@ const Calendar = () => {
       const updatedSessions = [...studySessions];
       if (editingIndex !== null) {
         updatedSessions[editingIndex] = newSession;
-        toast.success(`✏️ Session updated for ${sessionDay}`);
+        toast.success(`✏️ Session updated for ${autoDay}`);
       } else {
         updatedSessions.push(newSession);
-        toast.success(`📚 Session added for ${sessionDay}`);
+        toast.success(`📚 Session added for ${autoDay}`);
         scheduleNotification(sessionTitle, startTime);
       }
 
       setStudySessions(updatedSessions);
-      setSessionDay("");
       setSessionTitle("");
       setSessionDesc("");
       setStartTime("");
@@ -146,7 +150,6 @@ const Calendar = () => {
                   <div
                     key={idx}
                     onClick={() => {
-                      setSessionDay(day);
                       setSessionTitle(s.title);
                       setSessionDesc(s.description);
                       setStartTime(s.start);
@@ -158,6 +161,11 @@ const Calendar = () => {
                   >
                     <p className="font-bold">{s.title}</p>
                     <p className="text-sm italic">{s.description}</p>
+                    <p className="text-sm">
+                      {new Date(s.start).toLocaleDateString(undefined, {
+                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+                      })}
+                    </p>
                     <p className="text-sm">
                       {new Date(s.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {new Date(s.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
@@ -179,14 +187,6 @@ const Calendar = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-bold mb-4">{editingIndex !== null ? "Edit Study Session" : "Add Study Session"}</h2>
-
-            <label className="block text-sm font-medium mb-1">Day</label>
-            <select value={sessionDay} onChange={(e) => setSessionDay(e.target.value)} className="w-full mb-3 p-2 border rounded">
-              <option value="">Select a day</option>
-              {weekdays.map((day) => (
-                <option key={day} value={day}>{day}</option>
-              ))}
-            </select>
 
             <label className="block text-sm font-medium mb-1">Subject</label>
             <input type="text" value={sessionTitle} onChange={(e) => setSessionTitle(e.target.value)} className="w-full mb-3 p-2 border rounded" placeholder="e.g. Algorithms" />

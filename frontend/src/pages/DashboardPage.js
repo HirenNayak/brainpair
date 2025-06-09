@@ -5,9 +5,13 @@ import Pomodoro from "./PomodoroTimerApp";
 import MatchesPage from "./MatchesPage";
 import ConnectionsPage from "./ConnectionsPage";
 import ChatPage from "./ChatPage";
-import UserProfileSettings from "./UserProfileSettings"; 
+import UserProfileSettings from "./UserProfileSettings";
 import CalendarPage from "./CalendarPage";
 import StudyStreakPage from "./StudyStreakPage";
+
+// ✅ Import these two
+import GroupsPage from "./GroupsPage";
+import GroupChatPage from "./GroupChatPage";
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -24,6 +28,8 @@ const DashboardPage = () => {
             {[
               { id: "matches", label: "Matches" },
               { id: "chat", label: "Chat" },
+              { id: "groups", label: "Groups" },            // ✅ Added
+              { id: "groupchat", label: "Group Chat" },      // ✅ Added
               { id: "pomodoro", label: "Pomodoro" },
               { id: "connections", label: "Connections" },
               { id: "calendar", label: "Calendar" },
@@ -59,6 +65,20 @@ const DashboardPage = () => {
             <>
               <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Chat</h1>
               <ChatPage />
+            </>
+          )}
+
+          {activeTab === "groups" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Groups</h1>
+              <GroupsPage />
+            </>
+          )}
+
+          {activeTab === "groupchat" && (
+            <>
+              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Group Chat</h1>
+              <GroupChatPage />
             </>
           )}
 

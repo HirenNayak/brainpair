@@ -9,6 +9,7 @@ import {
   arrayRemove
 } from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
+import { toast } from "react-toastify";
 
 const GroupChatPage = () => {
   const currentUser = auth.currentUser;
@@ -17,8 +18,8 @@ const GroupChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [myName, setMyName] = useState("Me");
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  // Fetch groups and user's first name
   useEffect(() => {
     const fetchData = async () => {
       if (!currentUser) return;
@@ -38,7 +39,6 @@ const GroupChatPage = () => {
     fetchData();
   }, [currentUser]);
 
-  // Listen for messages in selected group
   useEffect(() => {
     if (!selectedGroup) return;
 
@@ -52,15 +52,59 @@ const GroupChatPage = () => {
     return () => unsubscribe();
   }, [selectedGroup]);
 
+  const getUploadUrl = (file) => {
+    if (file.type.startsWith("image")) return "https://api.cloudinary.com/v1_1/dvgkrvvsv/image/upload";
+    if (file.type.startsWith("video")) return "https://api.cloudinary.com/v1_1/dvgkrvvsv/video/upload";
+    toast.error("Only image and video files are supported.");
+    return null;
+  };
+
   const handleSend = async () => {
-    if (!text.trim() || !selectedGroup) return;
-    await push(ref(rtdb, `groupChats/${selectedGroup.id}/messages`), {
-      senderId: currentUser.uid,
-      senderName: myName,
-      text,
-      timestamp: Date.now(),
-    });
-    setText("");
+    if (!text.trim() && !selectedFile) return;
+    const msgRef = ref(rtdb, `groupChats/${selectedGroup.id}/messages`);
+
+    try {
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("upload_preset", "brainpair_upload");
+        formData.append("folder", `brainpair/group-files/${currentUser.uid}`);
+        formData.append("public_id", `group_${currentUser.uid}_${Date.now()}`);
+
+        const uploadUrl = getUploadUrl(selectedFile);
+        if (!uploadUrl) return;
+
+        const res = await fetch(uploadUrl, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (data.secure_url) {
+          await push(msgRef, {
+            senderId: currentUser.uid,
+            senderName: myName,
+            fileUrl: data.secure_url,
+            fileType: selectedFile.type,
+            timestamp: Date.now(),
+          });
+          setSelectedFile(null);
+        }
+      }
+
+      if (text.trim()) {
+        await push(msgRef, {
+          senderId: currentUser.uid,
+          senderName: myName,
+          text,
+          timestamp: Date.now(),
+        });
+        setText("");
+      }
+    } catch (err) {
+      toast.error("Error sending message.");
+      console.error(err);
+    }
   };
 
   const handleLeaveGroup = async () => {
@@ -71,7 +115,6 @@ const GroupChatPage = () => {
       members: arrayRemove(currentUser.uid),
     });
 
-    // Refresh group list and deselect group
     const snapshot = await getDocs(collection(db, "groups"));
     const updatedGroups = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
@@ -83,7 +126,6 @@ const GroupChatPage = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
       <div className="w-1/4 bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto">
         <h2 className="text-xl font-bold mb-4 text-indigo-700 dark:text-yellow-300">Groups</h2>
         {groups.length === 0 ? (
@@ -108,9 +150,7 @@ const GroupChatPage = () => {
         )}
       </div>
 
-      {/* Chat Panel */}
       <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 text-black dark:text-white h-full">
-        {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
           {selectedGroup ? (
             <>
@@ -132,7 +172,6 @@ const GroupChatPage = () => {
           )}
         </div>
 
-        {/* Chat Content */}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {selectedGroup ? (
@@ -154,7 +193,21 @@ const GroupChatPage = () => {
                       }`}
                     >
                       <strong className="block mb-1">{msg.senderName || "Unknown"}</strong>
-                      <span>{msg.text}</span>
+                      {msg.fileUrl ? (
+                        msg.fileType?.startsWith("image") ? (
+                          <img src={msg.fileUrl} alt="uploaded" className="rounded w-full" />
+                        ) : msg.fileType?.startsWith("video") ? (
+                          <video controls className="rounded w-full">
+                            <source src={msg.fileUrl} type={msg.fileType} />
+                          </video>
+                        ) : (
+                          <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                            📎 View or Download File
+                          </a>
+                        )
+                      ) : (
+                        <span>{msg.text}</span>
+                      )}
                     </div>
                   </div>
                 ))
@@ -166,22 +219,37 @@ const GroupChatPage = () => {
             )}
           </div>
 
-          {/* Message Input */}
           {selectedGroup && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-2">
               <input
                 type="text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 p-2 border rounded dark:bg-gray-800"
+                className="p-2 border rounded dark:bg-gray-800"
               />
-              <button
-                onClick={handleSend}
-                className="ml-2 bg-indigo-600 text-white px-4 py-2 rounded"
-              >
-                Send
-              </button>
+              <div className="flex gap-2 items-center">
+                <label className="cursor-pointer px-3 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+                  📎 Upload File
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    className="hidden"
+                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                  />
+                </label>
+                {selectedFile && (
+                  <span className="text-xs text-gray-600 dark:text-gray-300">
+                    {selectedFile.name} <button onClick={() => setSelectedFile(null)} className="text-red-500">✖</button>
+                  </span>
+                )}
+                <button
+                  onClick={handleSend}
+                  className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded"
+                >
+                  Send
+                </button>
+              </div>
             </div>
           )}
         </div>

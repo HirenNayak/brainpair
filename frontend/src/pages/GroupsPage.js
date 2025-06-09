@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { auth, db } from "../firebase/firebase-config";
+import { auth, db, rtdb } from "../firebase/firebase-config";
 import {
   collection,
   addDoc,
@@ -9,7 +9,9 @@ import {
   arrayRemove,
   doc,
   deleteDoc,
+  getDoc,
 } from "firebase/firestore";
+import { ref, push } from "firebase/database";
 
 const GroupsPage = () => {
   const [groupName, setGroupName] = useState("");
@@ -64,8 +66,12 @@ const GroupsPage = () => {
     setExpandedGroupId((prev) => (prev === groupId ? null : groupId));
   };
 
-  const handleChangeName = async (groupId) => {
+  const handleChangeName = async (groupId, group) => {
     if (!newName.trim()) return;
+    if (group.createdBy !== currentUser.uid) {
+      alert("Only the group creator can change the name.");
+      return;
+    }
     await updateDoc(doc(db, "groups", groupId), {
       groupName: newName,
     });
@@ -73,15 +79,33 @@ const GroupsPage = () => {
     fetchUserGroups();
   };
 
-  const handleAddUser = async (groupId) => {
+  const handleAddUser = async (groupId, group) => {
     const usersSnapshot = await getDocs(collection(db, "users"));
     const userDoc = usersSnapshot.docs.find((doc) => doc.data().email === emailToAdd);
     if (!userDoc) return alert("User not found");
 
     const userId = userDoc.id;
-    await updateDoc(doc(db, "groups", groupId), {
-      members: arrayUnion(userId),
-    });
+
+    if (group.createdBy === currentUser.uid) {
+      await updateDoc(doc(db, "groups", groupId), {
+        members: arrayUnion(userId),
+      });
+      alert("User added successfully!");
+    } else {
+      const senderDoc = await getDoc(doc(db, "users", currentUser.uid));
+      const senderName = senderDoc.exists() ? senderDoc.data().firstName : "Someone";
+
+      const msgRef = ref(rtdb, `groupChats/${groupId}/messages`);
+      await push(msgRef, {
+        senderId: currentUser.uid,
+        senderName: senderName,
+        text: `${senderName} requested to add user: ${emailToAdd}`,
+        timestamp: Date.now(),
+      });
+
+      alert("Request sent to group admin.");
+    }
+
     setEmailToAdd("");
     fetchUserGroups();
   };
@@ -170,7 +194,7 @@ const GroupsPage = () => {
                 />
                 <button
                   className="bg-yellow-500 text-white px-3 rounded"
-                  onClick={() => handleChangeName(group.id)}
+                  onClick={() => handleChangeName(group.id, group)}
                 >
                   Change Name
                 </button>
@@ -187,13 +211,13 @@ const GroupsPage = () => {
                 />
                 <button
                   className="bg-green-600 text-white px-3 rounded"
-                  onClick={() => handleAddUser(group.id)}
+                  onClick={() => handleAddUser(group.id, group)}
                 >
                   Add User
                 </button>
               </div>
 
-              {/* Member List with Remove Option */}
+              {/* Member List */}
               <div className="text-sm">
                 <p className="font-semibold mt-3 mb-1">Members:</p>
                 <ul className="list-disc list-inside space-y-1">
@@ -213,7 +237,7 @@ const GroupsPage = () => {
                 </ul>
               </div>
 
-              {/* Leave or Delete Group */}
+              {/* Leave or Delete */}
               <div className="pt-2">
                 {group.createdBy === currentUser.uid ? (
                   <button

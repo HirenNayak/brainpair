@@ -96,12 +96,46 @@ const ChatPage = () => {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !currentUser || !selectedUser) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "brainpair_upload");
+    formData.append("folder", `brainpair/chat-files/${currentUser.uid}`);
+    formData.append("public_id", `chat_${currentUser.uid}_${Date.now()}`);
+
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dvgkrvvsv/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.secure_url) {
+        const matchId = getMatchId(currentUser.uid, selectedUser.uid);
+        const msgRef = ref(rtdb, `messages/${matchId}`);
+
+        await push(msgRef, {
+          sender: currentUser.uid,
+          fileUrl: data.secure_url,
+          fileType: file.type,
+          timestamp: new Date().toISOString(),
+        });
+
+        toast.success("File sent!");
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toast.error("File upload failed.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="w-64 bg-white dark:bg-gray-800 shadow-lg p-4">
-        <h2 className="font-bold text-lg text-indigo-700 dark:text-indigo-300 mb-4">
-          Connections
-        </h2>
+        <h2 className="font-bold text-lg text-indigo-700 dark:text-indigo-300 mb-4">Connections</h2>
         {matchList.map((user) => (
           <div
             key={user.uid}
@@ -136,20 +170,33 @@ const ChatPage = () => {
                 msg.sender === currentUser?.uid ? "text-right" : "text-left"
               }`}
             >
-              <span
-                className={`inline-block px-3 py-2 rounded-lg ${
-                  msg.sender === currentUser?.uid
-                    ? "bg-indigo-200 dark:bg-indigo-600 text-black dark:text-white"
-                    : "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                }`}
-              >
-                {msg.text}
-              </span>
+              {msg.fileUrl ? (
+                msg.fileType?.startsWith("video") ? (
+                  <video controls className="max-w-xs rounded">
+                    <source src={msg.fileUrl} type={msg.fileType} />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                    View/Download File
+                  </a>
+                )
+              ) : (
+                <span
+                  className={`inline-block px-3 py-2 rounded-lg ${
+                    msg.sender === currentUser?.uid
+                      ? "bg-indigo-200 dark:bg-indigo-600 text-black dark:text-white"
+                      : "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                  }`}
+                >
+                  {msg.text}
+                </span>
+              )}
             </div>
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-2">
           <input
             type="text"
             className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-4 py-2"
@@ -166,6 +213,7 @@ const ChatPage = () => {
           >
             Send
           </button>
+          <input type="file" accept="video/*,.pdf,.doc,.docx" onChange={handleFileUpload} className="text-sm" />
         </div>
 
         {messages.length >= 10 && (

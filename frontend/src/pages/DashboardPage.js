@@ -8,10 +8,9 @@ import ChatPage from "./ChatPage";
 import UserProfileSettings from "./UserProfileSettings";
 import CalendarPage from "./CalendarPage";
 import StudyStreakPage from "./StudyStreakPage";
-
-// ✅ Import these two
 import GroupsPage from "./GroupsPage";
 import GroupChatPage from "./GroupChatPage";
+import ForumsPage from "./ForumsPage";
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("matches");
@@ -28,8 +27,9 @@ const DashboardPage = () => {
             {[
               { id: "matches", label: "Matches" },
               { id: "chat", label: "Chat" },
-              { id: "groups", label: "Groups" },            // ✅ Added
-              { id: "groupchat", label: "Group Chat" },      // ✅ Added
+              { id: "groups", label: "Groups" },
+              { id: "groupchat", label: "Group Chat" },
+              { id: "forums", label: "Forums" },
               { id: "pomodoro", label: "Pomodoro" },
               { id: "connections", label: "Connections" },
               { id: "calendar", label: "Calendar" },
@@ -54,68 +54,23 @@ const DashboardPage = () => {
 
         {/* Main View */}
         <div className="flex-1 p-8">
-          {activeTab === "matches" && (
+          {activeTab === "matches" && <MatchesPage />}
+          {activeTab === "chat" && <ChatPage />}
+          {activeTab === "groups" && <GroupsPage />}
+          {activeTab === "groupchat" && <GroupChatPage />}
+          {activeTab === "forums" && (
             <>
-              <h1 className="text-2xl font-bold text-amber-950 dark:text-yellow-300 mb-4">Matches</h1>
-              <MatchesPage />
+              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">
+                Discussion Forums
+              </h1>
+              <ForumsPage />
             </>
           )}
-
-          {activeTab === "chat" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Chat</h1>
-              <ChatPage />
-            </>
-          )}
-
-          {activeTab === "groups" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Groups</h1>
-              <GroupsPage />
-            </>
-          )}
-
-          {activeTab === "groupchat" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Group Chat</h1>
-              <GroupChatPage />
-            </>
-          )}
-
-          {activeTab === "pomodoro" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Pomodoro Timer</h1>
-              <Pomodoro />
-            </>
-          )}
-
-          {activeTab === "connections" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Your Connections</h1>
-              <ConnectionsPage />
-            </>
-          )}
-
-          {activeTab === "calendar" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Calendar</h1>
-              <CalendarPage />
-            </>
-          )}
-
-          {activeTab === "studyStreak" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Study Streak</h1>
-              <StudyStreakPage />
-            </>
-          )}
-
-          {activeTab === "settings" && (
-            <>
-              <h1 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">Edit Your Profile</h1>
-              <UserProfileSettings />
-            </>
-          )}
+          {activeTab === "pomodoro" && <Pomodoro />}
+          {activeTab === "connections" && <ConnectionsPage />}
+          {activeTab === "calendar" && <CalendarPage />}
+          {activeTab === "studyStreak" && <StudyStreakPage />}
+          {activeTab === "settings" && <UserProfileSettings />}
         </div>
       </div>
 

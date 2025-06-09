@@ -1,0 +1,128 @@
+import React, { useEffect, useState } from "react";
+import { auth, db, rtdb } from "../firebase/firebase-config";
+import { collection, getDocs } from "firebase/firestore";
+import { ref, push, onValue } from "firebase/database";
+
+const GroupChatPage = () => {
+  const currentUser = auth.currentUser;
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      const snapshot = await getDocs(collection(db, "groups"));
+      const userGroups = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(group => group.members.includes(currentUser.uid));
+      setGroups(userGroups);
+    };
+
+    fetchUserGroups();
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!selectedGroup) return;
+
+    const msgRef = ref(rtdb, `groupChats/${selectedGroup.id}/messages`);
+    const unsubscribe = onValue(msgRef, (snapshot) => {
+      const data = snapshot.val();
+      const msgList = data ? Object.values(data) : [];
+      setMessages(msgList.sort((a, b) => a.timestamp - b.timestamp));
+    });
+
+    return () => unsubscribe();
+  }, [selectedGroup]);
+
+  const handleSend = async () => {
+    if (!text.trim() || !selectedGroup) return;
+    await push(ref(rtdb, `groupChats/${selectedGroup.id}/messages`), {
+      senderId: currentUser.uid,
+      senderName: currentUser.displayName || "Anonymous",
+      text,
+      timestamp: Date.now(),
+    });
+    setText("");
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-1/4 bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4 text-indigo-700 dark:text-yellow-300">Groups</h2>
+        {groups.length === 0 ? (
+          <p className="text-sm text-gray-500">You haven't joined any groups yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {groups.map((group) => (
+              <li
+                key={group.id}
+                onClick={() => {
+                  setSelectedGroup(group);
+                  setMessages([]);
+                }}
+                className={`cursor-pointer px-3 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700 ${
+                  selectedGroup?.id === group.id ? "bg-indigo-200 dark:bg-indigo-700 text-white" : ""
+                }`}
+              >
+                {group.groupName}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Chat Panel */}
+      <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 text-black dark:text-white h-full">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold">
+            {selectedGroup ? selectedGroup.groupName : "Select a group to chat"}
+          </h2>
+        </div>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {selectedGroup ? (
+              messages.length === 0 ? (
+                <p className="text-sm text-gray-400">No messages yet.</p>
+              ) : (
+                messages.map((msg, i) => (
+                  <div key={i} className="mb-2">
+                    <strong>{msg.senderName || msg.senderId}:</strong> {msg.text}
+                  </div>
+                ))
+              )
+            ) : (
+              <p className="text-center text-gray-400 mt-10">Chat will appear here once you select a group</p>
+            )}
+          </div>
+
+          {/* Input Bar */}
+          {selectedGroup && (
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex">
+              <input
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 p-2 border rounded dark:bg-gray-800"
+              />
+              <button
+                onClick={handleSend}
+                className="ml-2 bg-indigo-600 text-white px-4 py-2 rounded"
+              >
+                Send
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default GroupChatPage;

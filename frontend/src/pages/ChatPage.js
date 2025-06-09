@@ -15,7 +15,7 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [hasShownReviewPrompt, setHasShownReviewPrompt] = useState(false); // ✅ New
+  const [hasShownReviewPrompt, setHasShownReviewPrompt] = useState(false);
 
   const getMatchId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
@@ -63,7 +63,6 @@ const ChatPage = () => {
       const msgs = data ? Object.values(data) : [];
       setMessages(msgs);
 
-      // ✅ Only show once
       if (msgs.length >= 10 && !hasShownReviewPrompt) {
         setHasShownReviewPrompt(true);
         toast.info("⭐ You can now leave a review!", { autoClose: 4000 });
@@ -71,7 +70,7 @@ const ChatPage = () => {
     });
 
     return () => unsubscribe();
-  }, [selectedUser, currentUser, hasShownReviewPrompt]); // ✅ Fix added here
+  }, [selectedUser, currentUser, hasShownReviewPrompt]);
 
   const sendMessage = async () => {
     if (!newMessage.trim()) {
@@ -98,17 +97,18 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg p-4">
-        <h2 className="font-bold text-lg text-indigo-700 mb-4">Connections</h2>
+    <div className="flex min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
+      <div className="w-64 bg-white dark:bg-gray-800 shadow-lg p-4">
+        <h2 className="font-bold text-lg text-indigo-700 dark:text-indigo-300 mb-4">
+          Connections
+        </h2>
         {matchList.map((user) => (
           <div
             key={user.uid}
             className={`p-2 rounded cursor-pointer mb-2 ${
               selectedUser?.uid === user.uid
-                ? "bg-indigo-100"
-                : "hover:bg-indigo-50"
+                ? "bg-indigo-100 dark:bg-indigo-700 text-indigo-900 dark:text-white"
+                : "hover:bg-indigo-50 dark:hover:bg-gray-700"
             }`}
             onClick={() => setSelectedUser(user)}
           >
@@ -117,19 +117,18 @@ const ChatPage = () => {
         ))}
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded w-full"
+          className="mt-4 px-3 py-2 text-sm bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 rounded w-full"
         >
           ← Back to Dashboard
         </button>
       </div>
 
-      {/* Chat Area */}
       <div className="flex-1 p-6">
-        <h2 className="text-2xl font-semibold text-indigo-700 mb-4">
+        <h2 className="text-2xl font-semibold text-indigo-700 dark:text-indigo-300 mb-4">
           Chat with {selectedUser?.firstName || "someone"}
         </h2>
 
-        <div className="bg-white rounded shadow p-4 h-[400px] overflow-y-auto mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded shadow p-4 h-[400px] overflow-y-auto mb-4">
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -140,8 +139,8 @@ const ChatPage = () => {
               <span
                 className={`inline-block px-3 py-2 rounded-lg ${
                   msg.sender === currentUser?.uid
-                    ? "bg-indigo-200"
-                    : "bg-gray-200"
+                    ? "bg-indigo-200 dark:bg-indigo-600 text-black dark:text-white"
+                    : "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
                 }`}
               >
                 {msg.text}
@@ -153,7 +152,7 @@ const ChatPage = () => {
         <div className="flex gap-2">
           <input
             type="text"
-            className="flex-1 border border-gray-300 rounded px-4 py-2"
+            className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-4 py-2"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
@@ -163,7 +162,7 @@ const ChatPage = () => {
           />
           <button
             onClick={sendMessage}
-            className="px-4 py-2 bg-indigo-600 text-white rounded"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded"
           >
             Send
           </button>

@@ -43,4 +43,54 @@ const useStudyStreak = () => {
         });
         return () => unsubscribe();
     }, []);
-}
+
+    const fetchStudyStreak = async (uid) => {
+        setLoading(true);
+        try {
+            const userDocRef = doc(db, 'userStudy', uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                let currentStreak = userData.studyStreak || 0;
+                let storedLastStudyDate = userData.lastStudyDate || null; // This will be a Firebase Timestamp
+
+                const nowTimestamp = firebaseTimestamp.now();
+
+                // Recalculate streak based on current date for display consistency
+                if (storedLastStudyDate) {
+                    if (isSameDay(nowTimestamp, storedLastStudyDate)) {
+                        // Already studied today, streak is accurate
+                    } else if (isPreviosDay(nowTimestamp, storedLastStudyDate)) {
+                        // Studied yesterday, streak is accurate
+                    } else {
+                        // Streak broken - last study was neither today nor yesterday
+                        if (currentStreak > 0) {
+                            setMessage('Your ${currentStreak}-day streak has ended :( ');
+                        }
+                        currentStreak = 0; // Reset for display
+                        storedLastStudyDate = null; // Visually indicate break
+                        await setDoc(userDocRef, {studyStreak: 0, lastStudyDate: null}, {merge: true}); // Update firebase to reset to persist immediately on view
+                    }
+                } else {
+                    // No previous study date, streak should be 0
+                    currentStreak = 0;
+                }
+
+                setStudyStrak(currentStreak);
+                setLastStudyDate(storedLastStudyDate);
+            } else {
+                // New user or user document doesn't exist yet
+                setStudyStrak(0)
+                setLastStudyDate(null);
+            }
+        } catch (error) {
+            console.error("Error while getting study streak", error);
+            setMessage('Something went wrong with the streak.');
+            setStudyStrak(0);
+            setLastStudyDate(null);
+        } finally {
+            setLoading(false);
+        }
+    }
+};

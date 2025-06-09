@@ -44,9 +44,9 @@ function LoginPage() {
     <>
       <Header />
 
-      <div className="min-h-screen flex items-center justify-center bg-indigo-50 py-12 px-6">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+      <div className="min-h-screen flex items-center justify-center bg-indigo-50 dark:bg-gray-900 py-12 px-6 text-black dark:text-white">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-md">
+          <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-300 mb-6">
             Login to Brainpair
           </h2>
 
@@ -62,7 +62,7 @@ function LoginPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-white"
               required
             />
 
@@ -71,13 +71,13 @@ function LoginPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-white"
               required
             />
 
             <Button type="submit">Login</Button>
 
-            <p className="text-center text-gray-600 text-sm mt-4">
+            <p className="text-center text-gray-600 dark:text-gray-400 text-sm mt-4">
               Don't have an account?{" "}
               <Link to="/register" className="text-indigo-500 hover:underline">
                 Register here

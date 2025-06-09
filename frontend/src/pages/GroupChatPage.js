@@ -11,31 +11,27 @@ const GroupChatPage = () => {
   const [text, setText] = useState("");
   const [myName, setMyName] = useState("Me");
 
-  // Fetch user groups
+  // Fetch groups and user's first name
   useEffect(() => {
-    const fetchUserGroups = async () => {
+    const fetchData = async () => {
+      if (!currentUser) return;
+
       const snapshot = await getDocs(collection(db, "groups"));
       const userGroups = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(group => group.members.includes(currentUser.uid));
       setGroups(userGroups);
-    };
 
-    const fetchMyName = async () => {
-      const userRef = doc(db, "users", currentUser.uid);
-      const snapshot = await getDoc(userRef);
-      if (snapshot.exists()) {
-        setMyName(snapshot.data().firstName || "Me");
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        setMyName(userDoc.data().firstName || "Me");
       }
     };
 
-    if (currentUser) {
-      fetchUserGroups();
-      fetchMyName();
-    }
+    fetchData();
   }, [currentUser]);
 
-  // Listen for messages
+  // Listen for messages in selected group
   useEffect(() => {
     if (!selectedGroup) return;
 
@@ -96,9 +92,8 @@ const GroupChatPage = () => {
           </h2>
         </div>
 
-        {/* Main Chat Area */}
+        {/* Chat Content */}
         <div className="flex-1 flex flex-col min-h-0">
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {selectedGroup ? (
               messages.length === 0 ? (
@@ -114,7 +109,7 @@ const GroupChatPage = () => {
                     <div
                       className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                         msg.senderId === currentUser.uid
-                          ? "bg-indigo-500 text-white"
+                          ? "bg-indigo-600 text-white"
                           : "bg-gray-200 dark:bg-gray-700"
                       }`}
                     >
@@ -129,7 +124,7 @@ const GroupChatPage = () => {
             )}
           </div>
 
-          {/* Input Bar */}
+          {/* Message Input */}
           {selectedGroup && (
             <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex">
               <input

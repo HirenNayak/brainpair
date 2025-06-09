@@ -88,13 +88,21 @@ const ChatPage = () => {
           return;
         }
 
+        const resourceType = selectedFile.type.startsWith("image")
+          ? "image"
+          : selectedFile.type.startsWith("video")
+          ? "video"
+          : "raw";
+
+        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/dvgkrvvsv/${resourceType}/upload`;
+
         const formData = new FormData();
         formData.append("file", selectedFile);
         formData.append("upload_preset", "brainpair_upload");
         formData.append("folder", `brainpair/chat-files/${currentUser.uid}`);
         formData.append("public_id", `chat_${currentUser.uid}_${Date.now()}`);
 
-        const res = await fetch("https://api.cloudinary.com/v1_1/dvgkrvvsv/upload", {
+        const res = await fetch(CLOUDINARY_UPLOAD_URL, {
           method: "POST",
           body: formData,
         });
@@ -179,8 +187,13 @@ const ChatPage = () => {
                     ) : msg.fileType?.startsWith("image") ? (
                       <img src={msg.fileUrl} alt="uploaded" className="rounded w-full" />
                     ) : (
-                      <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                        View/Download File
+                      <a
+                        href={msg.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        📎 View or Download File
                       </a>
                     )
                   ) : (

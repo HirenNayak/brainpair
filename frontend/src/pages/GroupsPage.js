@@ -165,7 +165,6 @@ const GroupsPage = () => {
     <div className="p-6 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-indigo-700 dark:text-yellow-300">Your Groups</h1>
 
-      {/* Create Group */}
       <div className="mb-8 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-2">Create New Group</h2>
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -190,7 +189,6 @@ const GroupsPage = () => {
         </div>
       </div>
 
-      {/* User's Groups */}
       {groups.map((group) => (
         <div
           key={group.id}
@@ -215,7 +213,6 @@ const GroupsPage = () => {
 
           {expandedGroupId === group.id && (
             <div className="mt-4 space-y-4">
-              {/* Change Name */}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -232,7 +229,6 @@ const GroupsPage = () => {
                 </button>
               </div>
 
-              {/* Add User */}
               <div className="flex gap-2">
                 <input
                   type="email"
@@ -249,13 +245,13 @@ const GroupsPage = () => {
                 </button>
               </div>
 
-              {/* Members */}
               <div className="text-sm">
                 <p className="font-semibold mt-3 mb-1">Members:</p>
                 <ul className="list-disc list-inside space-y-1">
                   {group.members.map((uid) => (
                     <li key={uid}>
                       {userMap[uid] || "Unknown"}
+                      {group.createdBy === uid && " - Admin"}
                       {group.createdBy === currentUser.uid && uid !== currentUser.uid && (
                         <button
                           onClick={() => handleRemoveUser(group.id, uid)}
@@ -269,7 +265,6 @@ const GroupsPage = () => {
                 </ul>
               </div>
 
-              {/* Pending Requests */}
               {group.createdBy === currentUser.uid &&
                 group.pendingRequests?.length > 0 && (
                   <div className="text-sm mt-4">
@@ -323,7 +318,6 @@ const GroupsPage = () => {
                   </div>
                 )}
 
-              {/* Delete / Leave */}
               <div className="pt-2">
                 {group.createdBy === currentUser.uid ? (
                   <button

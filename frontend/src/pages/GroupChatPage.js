@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { auth, db, rtdb } from "../firebase/firebase-config";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  arrayRemove
+} from "firebase/firestore";
 import { ref, push, onValue } from "firebase/database";
 
 const GroupChatPage = () => {
@@ -56,6 +63,24 @@ const GroupChatPage = () => {
     setText("");
   };
 
+  const handleLeaveGroup = async () => {
+    const confirmLeave = window.confirm("Are you sure you want to leave this group?");
+    if (!confirmLeave) return;
+
+    await updateDoc(doc(db, "groups", selectedGroup.id), {
+      members: arrayRemove(currentUser.uid),
+    });
+
+    // Refresh group list and deselect group
+    const snapshot = await getDocs(collection(db, "groups"));
+    const updatedGroups = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(group => group.members.includes(currentUser.uid));
+    setGroups(updatedGroups);
+    setSelectedGroup(null);
+    setMessages([]);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -86,13 +111,21 @@ const GroupChatPage = () => {
       {/* Chat Panel */}
       <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 text-black dark:text-white h-full">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
           {selectedGroup ? (
             <>
-              <h2 className="text-lg font-semibold">{selectedGroup.groupName}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {selectedGroup.description || "No description available."}
-              </p>
+              <div>
+                <h2 className="text-lg font-semibold">{selectedGroup.groupName}</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {selectedGroup.description || "No description available."}
+                </p>
+              </div>
+              <button
+                onClick={handleLeaveGroup}
+                className="text-red-600 hover:underline text-sm ml-4"
+              >
+                Leave Group
+              </button>
             </>
           ) : (
             <h2 className="text-lg font-semibold">Select a group to chat</h2>
@@ -127,7 +160,9 @@ const GroupChatPage = () => {
                 ))
               )
             ) : (
-              <p className="text-center text-gray-400 mt-10">Chat will appear here once you select a group</p>
+              <p className="text-center text-gray-400 mt-10">
+                Chat will appear here once you select a group
+              </p>
             )}
           </div>
 

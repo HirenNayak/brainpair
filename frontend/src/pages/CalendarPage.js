@@ -1,4 +1,4 @@
-// Updated Calendar.js with editable sessions
+// Updated Calendar.js with editable and deletable sessions
 import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase/firebase-config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
@@ -58,7 +58,7 @@ const Calendar = () => {
       Notification.requestPermission().then((perm) => {
         if (perm === "granted") {
           setTimeout(() => {
-            new Notification("\ud83d\udcda Time to Study!", {
+            new Notification("📚 Time to Study!", {
               body: `Session: ${title}`,
               icon: "/study-icon.png",
             });
@@ -83,10 +83,10 @@ const Calendar = () => {
       const updatedSessions = [...studySessions];
       if (editingIndex !== null) {
         updatedSessions[editingIndex] = newSession;
-        toast.success(`\u270f\ufe0f Session updated for ${sessionDay}`);
+        toast.success(`✏️ Session updated for ${sessionDay}`);
       } else {
         updatedSessions.push(newSession);
-        toast.success(`\ud83d\udcda Session added for ${sessionDay}`);
+        toast.success(`📚 Session added for ${sessionDay}`);
         scheduleNotification(sessionTitle, startTime);
       }
 
@@ -100,6 +100,17 @@ const Calendar = () => {
       setEditingIndex(null);
     } else {
       toast.error("Please fill all fields.");
+    }
+  };
+
+  const deleteSession = () => {
+    if (editingIndex !== null) {
+      const updatedSessions = [...studySessions];
+      const removed = updatedSessions.splice(editingIndex, 1);
+      setStudySessions(updatedSessions);
+      toast.success(`🗑️ Deleted session: ${removed[0].title}`);
+      setShowModal(false);
+      setEditingIndex(null);
     }
   };
 
@@ -189,8 +200,11 @@ const Calendar = () => {
             <label className="block text-sm font-medium mb-1">End Time</label>
             <input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full mb-4 p-2 border rounded" />
 
-            <div className="flex justify-end">
-              <button onClick={() => setShowModal(false)} className="mr-3 text-gray-500 hover:underline">Cancel</button>
+            <div className="flex justify-between">
+              {editingIndex !== null && (
+                <button onClick={deleteSession} className="text-red-500 hover:underline mr-auto">Delete</button>
+              )}
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:underline">Cancel</button>
               <button onClick={saveSession} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
                 {editingIndex !== null ? "Update" : "Add"}
               </button>

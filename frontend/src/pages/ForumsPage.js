@@ -22,6 +22,9 @@ const ForumsPage = () => {
   const [selectedForum, setSelectedForum] = useState(null);
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
+  const [replyInputs, setReplyInputs] = useState({});
+  const [replyBoxes, setReplyBoxes] = useState({});
+  const [replies, setReplies] = useState({});
 
   const fetchForums = async () => {
     const snapshot = await getDocs(collection(db, "forums"));
@@ -85,6 +88,26 @@ const ForumsPage = () => {
     }
   };
 
+  const fetchReplies = async (postId) => {
+    const snap = await getDocs(collection(db, `posts/${postId}/replies`));
+    const repliesList = await Promise.all(
+      snap.docs.map(async (replyDoc) => {
+        const data = replyDoc.data();
+        let displayName = "Anonymous";
+        try {
+          const userDoc = await getDoc(doc(db, "users", data.createdBy));
+          if (userDoc.exists()) {
+            displayName = userDoc.data().firstName || displayName;
+          }
+        } catch (err) {
+          console.error("Failed to fetch reply user", err);
+        }
+        return { id: replyDoc.id, ...data, displayName };
+      })
+    );
+    setReplies((prev) => ({ ...prev, [postId]: repliesList }));
+  };
+
   const enterForum = async (forum) => {
     setSelectedForum(forum);
     const q = query(collection(db, "posts"), where("forumId", "==", forum.id));
@@ -102,6 +125,7 @@ const ForumsPage = () => {
         } catch (err) {
           console.error("Failed to fetch user name", err);
         }
+        await fetchReplies(post.id);
         return { ...post, displayName: name };
       })
     );
@@ -126,51 +150,72 @@ const ForumsPage = () => {
     }
   };
 
+  const handleReply = async (postId) => {
+    const reply = replyInputs[postId];
+    if (!reply || !reply.trim()) return toast.error("Reply cannot be empty");
+    try {
+      await addDoc(collection(db, `posts/${postId}/replies`), {
+        content: reply.trim(),
+        createdBy: auth.currentUser?.uid || "anonymous",
+        createdAt: serverTimestamp(),
+      });
+      toast.success("Reply added");
+      setReplyInputs((prev) => ({ ...prev, [postId]: "" }));
+      fetchReplies(postId);
+    } catch (err) {
+      toast.error("Error saving reply");
+    }
+  };
+
+  const toggleReplyBox = (postId) => {
+    setReplyBoxes((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
   return (
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-900">
       {!selectedForum ? (
         <>
-          <h1 className="text-3xl font-extrabold text-center text-indigo-700 dark:text-indigo-300 mb-8 tracking-wide">
-            🚀 Join or Create Discussion Forums
+          <h1 className="text-3xl font-bold text-center text-indigo-700 dark:text-indigo-300 mb-6">
+            Join or Create Discussion Forums
           </h1>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-10 border border-indigo-100 dark:border-gray-700">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Create a New Forum</h2>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Forum Title (e.g., Kali Linux)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="text"
-                placeholder="Forum Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              <button
-                onClick={handleCreateForum}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition"
-              >
-                ➕ Create Forum
-              </button>
-            </div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow mb-8">
+            <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-white">
+              Create a New Forum
+            </h2>
+            <input
+              type="text"
+              placeholder="Forum Title (e.g., Kali Linux)"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full mb-3 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+            />
+            <input
+              type="text"
+              placeholder="Forum Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full mb-3 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+            />
+            <button
+              onClick={handleCreateForum}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              Create Forum
+            </button>
           </div>
 
           <div className="flex gap-4 items-center mb-6">
             <input
               type="text"
-              placeholder="🔍 Search forums..."
+              placeholder="Search forums..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-grow px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="flex-grow px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
             />
             <button
               onClick={handleSearch}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
             >
               Search
             </button>
@@ -180,7 +225,7 @@ const ForumsPage = () => {
             {filteredForums.map((forum) => (
               <div
                 key={forum.id}
-                className="relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:scale-[1.02] border border-gray-200 dark:border-gray-700"
+                className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-xl transition"
               >
                 <div
                   onClick={() => enterForum(forum)}
@@ -192,14 +237,14 @@ const ForumsPage = () => {
                   <p className="text-gray-500 dark:text-gray-400 mt-1">
                     {forum.description}
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                    👤 Created by: {forum.creatorName || "Anonymous"}
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                    Created by: {forum.creatorName || "Anonymous"}
                   </p>
                 </div>
                 {forum.createdBy === auth.currentUser?.uid && (
                   <button
                     onClick={() => handleDeleteForum(forum.id)}
-                    className="absolute top-2 right-3 text-sm text-red-500 hover:underline"
+                    className="absolute top-2 right-2 text-sm text-red-500 hover:underline"
                   >
                     Delete
                   </button>
@@ -226,7 +271,7 @@ const ForumsPage = () => {
               placeholder="Write your post..."
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              className="w-full h-24 p-3 border rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="w-full h-24 p-3 border rounded-lg dark:bg-gray-700 dark:text-white"
             />
             <button
               onClick={handlePost}
@@ -236,13 +281,47 @@ const ForumsPage = () => {
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {posts.map((post) => (
-              <div key={post.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow border border-gray-200 dark:border-gray-700">
+              <div key={post.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
                 <p className="text-gray-800 dark:text-white">{post.content}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Posted by {post.displayName || "Anonymous"}
                 </p>
+                <button
+                  onClick={() => toggleReplyBox(post.id)}
+                  className="mt-2 text-indigo-600 text-sm hover:underline"
+                >
+                  💬 Reply
+                </button>
+                {replyBoxes[post.id] && (
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      placeholder="Write a reply..."
+                      value={replyInputs[post.id] || ""}
+                      onChange={(e) =>
+                        setReplyInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 mt-1 border rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                    <button
+                      onClick={() => handleReply(post.id)}
+                      className="mt-2 bg-indigo-500 text-white px-4 py-1 rounded hover:bg-indigo-600 text-sm"
+                    >
+                      Submit Reply
+                    </button>
+                  </div>
+                )}
+                {replies[post.id] && replies[post.id].length > 0 && (
+                  <div className="mt-4 space-y-2 border-l-4 border-indigo-200 pl-4">
+                    {replies[post.id].map((r) => (
+                      <div key={r.id} className="text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-semibold">{r.displayName}:</span> {r.content}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -6,14 +6,16 @@ BrainPair is a React-based study partner matching application where students can
 
 ## 🚀 Features
 
-- 🔐 User Registration & Login (Firebase Auth)
-- 📄 Profile Setup with University, Course, Interests
-- 📸 Image Upload to Cloudinary
-- 🔄 Swipe-based Matching System
-- 💬 Real-time Chat (using Firebase Realtime DB)
-- ⏱️ Pomodoro Timer
-- 👥 View & Manage Matches + Profile Editing
-- 🔔 Toast Notifications for new messages
+- 🔐 **User Authentication** – Register/Login with Firebase Auth  
+- 👤 **Profile Setup** – Choose university, course, interests, and availability  
+- 📸 **Image Upload** – Upload profile photos to Cloudinary  
+- 🔄 **Swipe-Based Matching** – Match based on mutual interests and schedules  
+- 💬 **Real-Time Chat** – One-on-one and group chat using Firebase Realtime Database  
+- 📅 **Study Streak Tracker** – Track your consecutive study days  
+- 🧠 **Pomodoro Timer** – Integrated productivity timer  
+- 👥 **Groups & Group Chat** – Create or join study groups  
+- ⚙️ **Dark Mode & Profile Settings** – Customize experience and manage your profile  
+- 🔔 **Live Notifications** – Toasts for actions like message updates and logouts  
 
 ---
 
@@ -80,16 +82,49 @@ Then open your browser and go to:
 ```bash
 📁 brainpair/
 ├── frontend/
-│   └── src/
-│       ├── components/           # Reusable UI components (Button, Footer, Header, etc.)
-│       ├── pages/                # App pages like ChatPage, DashboardPage, etc.
-│       ├── firebase/             # Firebase configuration file
-│       ├── utils/                # Any utility/helper functions (if used)
-│       ├── App.js                # Main route handler
-│       ├── index.js              # Entry point
-│       ├── App.css, index.css    # Global styles
-│       └── logo.svg              # Branding/logo
-├── .gitignore                    # Ignored files for Git
-├── package.json                  # Project dependencies and scripts
-├── README.md                     # Project documentation
+│   ├── src/
+│   │   ├── components/             # UI components (Header, Footer, Cards, Modals, etc.)
+│   │   │   ├── Card.js
+│   │   │   ├── DarkModeToggle.js
+│   │   │   ├── Footer.js
+│   │   │   ├── Header.js
+│   │   │   ├── MatchCelebrationModal.js
+│   │   │   ├── MessageListener.js
+│   │   │   ├── Progress.js
+│   │   │   ├── ReviewModal.js
+│   │   │   └── StreakCard.js
+│   │   ├── firebase/               # Firebase project config
+│   │   │   └── firebase-config.js
+│   │   ├── pages/                  # Main application pages/screens
+│   │   │   ├── CalendarPage.js
+│   │   │   ├── ChatPage.js
+│   │   │   ├── ConnectionsPage.js
+│   │   │   ├── DashboardPage.js
+│   │   │   ├── ForumsPage.js
+│   │   │   ├── GroupChatPage.js
+│   │   │   ├── GroupsPage.js
+│   │   │   ├── ImageUploadPage.js
+│   │   │   ├── LandingPage.js
+│   │   │   ├── LoginPage.js
+│   │   │   ├── MatchesPage.js
+│   │   │   ├── PomodoroTimerApp.js
+│   │   │   ├── ProfileSetupPage.js
+│   │   │   ├── RegisterPage.js
+│   │   │   ├── StudyStreakPage.js
+│   │   │   └── UserProfileSettings.js
+│   │   ├── utils/                  # Logic & helper services
+│   │   │   ├── groupService.js
+│   │   │   ├── matchHandler.js
+│   │   │   ├── matchUtils.js
+│   │   │   ├── reviewService.js
+│   │   │   ├── streakHandler.js
+│   │   │   └── streakUtils.js
+│   │   ├── unitTests/              # Unit tests for logic modules
+│   │   ├── App.js                  # Main routing logic
+│   │   ├── index.js                # React entry point
+│   │   └── App.css / index.css     # Global styles
+├── .gitignore
+├── README.md
+├── package.json
+
 ```

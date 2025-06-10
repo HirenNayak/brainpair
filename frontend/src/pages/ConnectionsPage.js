@@ -35,7 +35,7 @@ const ConnectionsPage = () => {
             uid: entry.uid,
             matchId: entry.matchId,
             ...data,
-            reviews: data.reviews || [], // ✅ Ensure reviews are always an array
+            reviews: data.reviews || [],
           });
         }
       }
@@ -56,11 +56,11 @@ const ConnectionsPage = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 gap-6 bg-white dark:bg-gray-900 min-h-screen p-6 text-black dark:text-white">
       {connections.map((user) => (
         <div
           key={user.uid}
-          className="bg-white shadow-lg rounded-lg p-6 text-center cursor-pointer"
+          className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center cursor-pointer"
           onClick={() => toggleExpand(user.uid)}
         >
           <Slider dots infinite speed={500} slidesToShow={1} slidesToScroll={1}>
@@ -73,22 +73,22 @@ const ConnectionsPage = () => {
               />
             ))}
           </Slider>
-          <h2 className="text-xl font-bold text-indigo-700">
+
+          <h2 className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
             {user.firstName} ({user.city})
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             {user.interest1}, {user.interest2}
           </p>
 
           {expandedUid === user.uid && (
-            <div className="mt-4 bg-gray-50 p-4 rounded-lg text-left text-sm text-gray-700">
+            <div className="mt-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-left text-sm text-gray-700 dark:text-gray-200">
               <p><strong>Age:</strong> {user.age}</p>
               <p><strong>Gender:</strong> {user.gender}</p>
               <p><strong>University:</strong> {user.university}</p>
               <p><strong>Course:</strong> {user.course}</p>
               <p><strong>Availability:</strong> {user.day} from {user.startTime} to {user.endTime}</p>
 
-              {/* ⭐ Reviews */}
               <div className="mt-4">
                 <p className="font-semibold mb-1">⭐ Reviews</p>
                 {user.reviews?.length > 0 ? (() => {
@@ -98,8 +98,8 @@ const ConnectionsPage = () => {
                     .slice(0, 3);
                   return (
                     <div>
-                      <p className="text-gray-800 mb-2">Average Rating: ⭐ {avg.toFixed(1)}</p>
-                      <div className="space-y-1 max-h-32 overflow-y-auto text-sm text-gray-700">
+                      <p className="text-gray-800 dark:text-gray-100 mb-2">Average Rating: ⭐ {avg.toFixed(1)}</p>
+                      <div className="space-y-1 max-h-32 overflow-y-auto text-sm text-gray-700 dark:text-gray-200">
                         {latest.map((r, i) => (
                           <p key={i}>⭐ {r.rating} — “{r.comment}”</p>
                         ))}
@@ -107,7 +107,7 @@ const ConnectionsPage = () => {
                     </div>
                   );
                 })() : (
-                  <p className="text-gray-500">No reviews yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400">No reviews yet.</p>
                 )}
               </div>
             </div>

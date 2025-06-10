@@ -4,7 +4,7 @@ import { db, auth } from "../firebase/firebase-config";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
-import { useNavigate } from "react-router-dom"; // 
+import { useNavigate } from "react-router-dom";
 
 const universities = [
   "University of Auckland", "Auckland University of Technology (AUT)",
@@ -14,16 +14,14 @@ const universities = [
 ];
 
 const courses = ["BCIS", "BBUS", "BCS", "BHSc"];
-
 const interest = ["Cyber Security", "Software Development", "Web Development", "iOS Development", "Ethical Hacking"];
-
 const cities = [
   "Auckland", "Wellington", "Christchurch", "Hamilton", "Dunedin",
   "Tauranga", "Palmerston North", "Napier", "Rotorua", "New Plymouth"
 ];
 
 const ProfileSetupPage = () => {
-  const navigate = useNavigate(); // 
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     university: "",
@@ -51,12 +49,9 @@ const ProfileSetupPage = () => {
         return;
       }
 
-      await setDoc(doc(db, "users", user.uid), {
-        ...form
-      }, { merge: true });
-
+      await setDoc(doc(db, "users", user.uid), { ...form }, { merge: true });
       alert("Profile setup complete!");
-      navigate("/upload"); 
+      navigate("/upload");
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -65,10 +60,9 @@ const ProfileSetupPage = () => {
   return (
     <>
       <Header />
-
-      <div className="min-h-screen bg-indigo-50 flex items-center justify-center py-12 px-6">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Complete Your Profile</h2>
+      <div className="min-h-screen bg-indigo-50 dark:bg-gray-900 text-black dark:text-white flex items-center justify-center py-12 px-6">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-2xl">
+          <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-300 mb-6">Complete Your Profile</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField label="University" name="university" value={form.university} onChange={handleChange} options={universities} />
@@ -82,15 +76,25 @@ const ProfileSetupPage = () => {
             <SelectField label="Available Day" name="day" value={form.day} onChange={handleChange} options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]} />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-              <input type="time" name="startTime" value={form.startTime} onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Start Time</label>
+              <input
+                type="time"
+                name="startTime"
+                value={form.startTime}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-              <input type="time" name="endTime" value={form.endTime} onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Time</label>
+              <input
+                type="time"
+                name="endTime"
+                value={form.endTime}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
             </div>
           </div>
 
@@ -99,18 +103,20 @@ const ProfileSetupPage = () => {
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );
 };
 
-// Reusable Select component
 const SelectField = ({ label, name, value, onChange, options }) => (
   <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-    <select name={name} value={value} onChange={onChange}
-      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400">
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{label}</label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+    >
       <option value="">-- Select --</option>
       {options.map(opt => (
         <option key={opt} value={opt}>{opt}</option>

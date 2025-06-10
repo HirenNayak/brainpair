@@ -68,9 +68,9 @@ const MatchesPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-indigo-50 flex flex-col items-center py-10 px-6">
+      <div className="min-h-screen bg-indigo-50 dark:bg-gray-900 text-black dark:text-white flex flex-col items-center py-10 px-6">
         {currentProfile ? (
-          <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center">
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 w-full max-w-md text-center">
             {currentProfile.images?.length > 0 && (
               <Slider dots infinite speed={500} slidesToShow={1} slidesToScroll={1}>
                 {currentProfile.images.map((img, i) => (
@@ -84,7 +84,7 @@ const MatchesPage = () => {
               </Slider>
             )}
 
-            <h2 className="text-xl font-bold text-indigo-700">
+            <h2 className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
               {currentProfile.firstName} ({currentProfile.city})
             </h2>
 
@@ -102,7 +102,7 @@ const MatchesPage = () => {
               );
             })()}
 
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
               Interest match: {
                 currentUser.interest1 === currentProfile.interest1 || currentUser.interest1 === currentProfile.interest2
                   ? currentUser.interest1
@@ -112,12 +112,12 @@ const MatchesPage = () => {
 
             <div className="flex justify-center gap-6 mt-6">
               <Button onClick={() => swipe("left")} className="bg-red-500 hover:bg-red-600">Dislike</Button>
-              <Button onClick={() => setShowDetails(!showDetails)} className="bg-gray-300 text-gray-800">⋯</Button>
+              <Button onClick={() => setShowDetails(!showDetails)} className="bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-white">⋯</Button>
               <Button onClick={() => swipe("right")} className="bg-green-500 hover:bg-green-600">Like</Button>
             </div>
 
             {showDetails && (
-              <div className="mt-6 text-left bg-indigo-50 rounded-lg p-4 shadow">
+              <div className="mt-6 text-left bg-indigo-50 dark:bg-gray-700 rounded-lg p-4 shadow">
                 <p><strong>Name:</strong> {currentProfile.firstName}</p>
                 <p><strong>City:</strong> {currentProfile.city}</p>
                 <p><strong>University:</strong> {currentProfile.university}</p>
@@ -135,7 +135,7 @@ const MatchesPage = () => {
                     <div className="mt-4">
                       <p><strong>Average Rating:</strong> ⭐ {avg.toFixed(1)}</p>
                       <p><strong>Recent Reviews:</strong></p>
-                      <div className="max-h-32 overflow-y-auto text-sm text-gray-600 space-y-1 mt-1">
+                      <div className="max-h-32 overflow-y-auto text-sm text-gray-600 dark:text-gray-200 space-y-1 mt-1">
                         {recentReviews.map((r, i) => (
                           <p key={i}>⭐ {r.rating} — “{r.comment}”</p>
                         ))}
@@ -149,7 +149,7 @@ const MatchesPage = () => {
             )}
           </div>
         ) : (
-          <p className="text-gray-600">No more matches found.</p>
+          <p className="text-gray-600 dark:text-gray-300">No more matches found.</p>
         )}
       </div>
 
@@ -161,8 +161,6 @@ const MatchesPage = () => {
           currentUser={currentUser}
         />
       )}
-
-      
     </>
   );
 };

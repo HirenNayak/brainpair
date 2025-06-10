@@ -19,10 +19,17 @@ export const handleSwipe = async (currentUser, targetUser, direction) => {
           users: [currentUser.uid, targetUser.uid],
           timestamp: new Date(),
         });
-        return true; // ✅ Tell MatchesPage a match happened
+        return true;
       }
     }
   }
 
-  return false; // No match
+  return false;
 };
+
+
+export function isMutualMatch(userA, userB, swipeData) {
+  const userALikes = swipeData[userA] || [];
+  const userBLikes = swipeData[userB] || [];
+  return userALikes.includes(userB) && userBLikes.includes(userA);
+}
